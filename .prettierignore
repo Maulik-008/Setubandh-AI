@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+docs/prototype/
+.claude/skills/
+**/__screenshots__/
+**/*-snapshots/
+playwright-report/
+test-results/
+
+# Markdown docs are hand-formatted (tables, prose)
+*.md

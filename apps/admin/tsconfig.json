@@ -1,0 +1,4 @@
+{
+  "extends": "@setubandh/config/tsconfig/react.json",
+  "include": ["src", "test", "e2e", "*.config.ts"]
+}

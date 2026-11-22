@@ -1,0 +1,18 @@
+{
+  "name": "@setubandh/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Drizzle schema, migrations, RLS policies and the tenant-scoped db helper (M1-04).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --project unit"
+  },
+  "devDependencies": {
+    "@setubandh/config": "workspace:*"
+  }
+}

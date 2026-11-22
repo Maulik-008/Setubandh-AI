@@ -1,0 +1,18 @@
+{
+  "name": "@setubandh/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zod schemas, DTO types, enums, permission constants and error codes shared by API and UI.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --project unit"
+  },
+  "devDependencies": {
+    "@setubandh/config": "workspace:*"
+  }
+}

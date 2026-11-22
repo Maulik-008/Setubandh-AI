@@ -1,0 +1,18 @@
+{
+  "name": "@setubandh/channels",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Meta channel adapters: WhatsApp, Messenger, Instagram (send, parse, normalise).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --project unit"
+  },
+  "devDependencies": {
+    "@setubandh/config": "workspace:*"
+  }
+}
