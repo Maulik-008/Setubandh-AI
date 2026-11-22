@@ -19,6 +19,7 @@
   "devDependencies": {
     "@nestjs/testing": "^12.6.0",
     "@setubandh/config": "workspace:*",
+    "@setubandh/testing": "workspace:*",
     "@swc/core": "^1.16.22",
     "unplugin-swc": "^2.0.0"
   }

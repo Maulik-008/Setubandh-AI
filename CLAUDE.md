@@ -4,7 +4,7 @@
 
 ## Project status
 
-**Pre-code.** The repo currently holds requirements, milestone plans and a UI prototype only. Nothing is scaffolded yet: the monorepo, Docker stack and CI are tickets M1-01 to M1-07. Do not assume `pnpm` scripts or folders in "Stack" exist until the matching ticket is done.
+**Scaffolded (M1-01, M1-01a).** The pnpm + Turborepo monorepo, strict TypeScript, ESLint module boundaries and the full test harness exist. Apps are still empty shells: Docker dev stack, NestJS bootstrap, database and design system are M1-02 to M1-05. Do not assume a script or folder exists until its ticket is done.
 
 ## Read first
 
@@ -20,9 +20,10 @@ pnpm + Turborepo monorepo. Backend: Node 26 LTS, NestJS 12 (Fastify 5), Drizzle 
 Frontend: React 19, Vite 8, Astryx (`@astryxdesign/core`) themed with Paper & Pastel, Tailwind v4 via the Astryx bridge, TanStack Query, React Router v7, Zod.
 AI (MVP 2): Claude API via `@anthropic-ai/sdk`; model IDs come from config, never hard-coded.
 
-## Commands (available once M1-01 / M1-02 land)
+## Commands
 
-`pnpm dev` | `pnpm test` | `pnpm test:integration` | `pnpm lint` | `pnpm typecheck` | `pnpm db:migrate` | `pnpm db:seed` | `pnpm ui:audit` | `pnpm ai:evals`
+Available now (M1-01, M1-01a): `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check`. How to write each kind of test: `docs/testing.md`.
+Later tickets add: `pnpm dev` (M1-02) | `pnpm db:migrate` / `pnpm db:seed` (M1-04) | `pnpm ui:audit` (M1-05) | `pnpm ai:evals` (MVP 2).
 
 ## Non-negotiable rules
 

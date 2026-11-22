@@ -1,7 +1,7 @@
 # M1-01 + M1-01a: Monorepo, tooling and test harness
 
 Ticket: M1-01, M1-01a
-Status: ready-for-agent
+Status: ready-for-human (implemented; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §9, week 1](../../plan/01-mvp-1-unified-inbox.md)
 Decisions: [ADR 0011](../../adr/0011-backend-stack-refresh.md), including its 2026-11-22 addendum
 

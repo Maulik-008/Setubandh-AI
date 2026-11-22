@@ -134,7 +134,8 @@ export function createConfig({ tsconfigRootDir, react = false, ignores = [] }) {
     ...(react
       ? [
           {
-            files: ['**/*.tsx', '**/*.ts'],
+            // React rules apply to app source only (Playwright fixtures also use a `use` callback).
+            files: ['src/**/*.tsx', 'src/**/*.ts'],
             plugins: { 'react-hooks': reactHooks },
             rules: reactHooks.configs.recommended.rules,
           },

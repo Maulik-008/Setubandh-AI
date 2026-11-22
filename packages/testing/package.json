@@ -1,0 +1,35 @@
+{
+  "name": "@setubandh/testing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Test-only helpers: Testcontainers setup (Postgres 18 + pgvector, Valkey 8.1) and the NestJS Fastify test app. Never import from production code.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./global-setup": "./src/global-setup.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --project unit --passWithNoTests",
+    "test:integration": "vitest run --project integration"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.6.0",
+    "@nestjs/core": "^12.6.0",
+    "@nestjs/platform-fastify": "^12.6.0",
+    "@nestjs/testing": "^12.6.0",
+    "@testcontainers/postgresql": "^12.2.2",
+    "ioredis": "^6.0.0",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "testcontainers": "^12.2.2"
+  },
+  "devDependencies": {
+    "@setubandh/config": "workspace:*",
+    "@swc/core": "^1.16.22",
+    "@types/pg": "^8.23.1",
+    "unplugin-swc": "^2.0.0"
+  }
+}

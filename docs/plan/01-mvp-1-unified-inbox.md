@@ -415,8 +415,8 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 #### M1-01 Monorepo and tooling
 **Build:** pnpm workspaces + Turborepo with `apps/api`, `apps/worker`, `apps/web`, `apps/admin`, `packages/shared`, `packages/db`, `packages/channels`, `packages/ui`, `packages/config`. Strict TypeScript, ESLint with `eslint-plugin-boundaries` (module rules from requirements §4.5), Prettier, Vitest.
 **Acceptance:**
-- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test` pass on the empty apps.
-- [ ] Importing another module’s internals (not its service) fails lint.
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test` pass on the empty apps.
+- [x] Importing another module’s internals (not its service) fails lint.
 
 **Spec:** [docs/specs/m1-01-monorepo-and-tooling/spec.md](../specs/m1-01-monorepo-and-tooling/spec.md)
 
@@ -424,11 +424,11 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 *Added 2026-11-22 so every later ticket can ship tests from day one (requirements §16).*
 **Build:** backend unit tests (Vitest) and integration tests against real Postgres 18 + pgvector and Valkey 8.1 started by Testcontainers; a NestJS (Fastify) test-app helper using `inject`. Frontend: a minimal plain React + Vite shell in `apps/web` (no Astryx; that stays M1-05); component tests in a real browser (Vitest browser mode + Playwright + Testing Library) with MSW for API mocks; Playwright E2E across Chromium, Firefox and WebKit, desktop and phone viewports, light and dark mode, with axe accessibility checks, screenshot comparison, and traces on failure.
 **Acceptance:**
-- [ ] `pnpm test` runs unit tests without Docker; `pnpm test:integration` starts Postgres + Valkey containers and proves pgvector is available.
-- [ ] A NestJS test app boots on Fastify and answers an injected request.
-- [ ] `pnpm test:browser` runs a React component test in real Chromium with an MSW-mocked API call.
-- [ ] `pnpm test:e2e` loads the web shell, passes axe with 0 serious or critical issues in light and dark mode, and matches its screenshot baseline.
-- [ ] A failing E2E test keeps a trace and screenshot.
+- [x] `pnpm test` runs unit tests without Docker; `pnpm test:integration` starts Postgres + Valkey containers and proves pgvector is available.
+- [x] A NestJS test app boots on Fastify and answers an injected request.
+- [x] `pnpm test:browser` runs a React component test in real Chromium with an MSW-mocked API call.
+- [x] `pnpm test:e2e` loads the web shell, passes axe with 0 serious or critical issues in light and dark mode, and matches its screenshot baseline.
+- [x] A failing E2E test keeps a trace and screenshot.
 
 **Spec:** [docs/specs/m1-01-monorepo-and-tooling/spec.md](../specs/m1-01-monorepo-and-tooling/spec.md)
 
