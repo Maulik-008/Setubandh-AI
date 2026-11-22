@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-One file per new decision, named `NNNN-short-title.md` (next number: `0011`). Each record states context, decision, alternatives considered, and consequences. Update the docs first when a decision changes, then the code.
+One file per new decision, named `NNNN-short-title.md` (next number: `0012`). Each record states context, decision, alternatives considered, and consequences. Update the docs first when a decision changes, then the code.
 
 ## Settled decisions (ADR-01 to ADR-10)
 
@@ -18,6 +18,12 @@ These are recorded in [requirements §4.4](../requirements.md) and must not be r
 | ADR-08 | Astryx components themed with Paper & Pastel tokens |
 | ADR-09 | Webhook ingress only verifies, stores and enqueues |
 | ADR-10 | Prices, stock and totals always come from the database through tools |
+
+## New decisions
+
+| ID | Decision |
+|---|---|
+| [0011](0011-backend-stack-refresh.md) | Backend stack refresh: Node 26, NestJS 12, PostgreSQL 18, Valkey 8.1 + BullMQ v6 OSS, Cloudflare R2, Drizzle 0.45 pinned, 1 API + 1 worker at launch |
 
 ## Template
 

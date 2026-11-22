@@ -286,7 +286,7 @@ Comment permissions (`pages_read_engagement`, `pages_manage_engagement`, `instag
 
 ## 6. Technical scope
 
-Stack exactly as `requirements.md` §4.3: Node.js 22 + NestJS 11 (Fastify), PostgreSQL 17 (+ pgvector installed now, used in MVP 2), Redis 7 + BullMQ, Socket.IO, MinIO, React 19 + Vite 7 + Astryx themed with Paper & Pastel, Tailwind v4 bridge, pnpm + Turborepo.
+Stack exactly as `requirements.md` §4.3 and ADR 0011: Node.js 26 LTS + NestJS 12 (Fastify), PostgreSQL 18 (+ pgvector installed now, used in MVP 2), Valkey 8.1 + BullMQ v6, Socket.IO, Cloudflare R2 (S3 API), React 19 + Vite 7 + Astryx themed with Paper & Pastel, Tailwind v4 bridge, pnpm + Turborepo.
 
 ### 6.1 Apps and modules built in MVP 1
 
@@ -418,7 +418,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [ ] Importing another module’s internals (not its service) fails lint.
 
 #### M1-02 Local stack and typed config
-**Build:** `docker-compose.dev.yml` with Postgres 17 + pgvector, Redis 7, MinIO, Mailpit. Config module validates every env var with Zod at boot.
+**Build:** `docker-compose.dev.yml` with Postgres 18 + pgvector, Valkey 8.1, a local S3-compatible container (SeaweedFS), Mailpit. Config module validates every env var with Zod at boot.
 **Acceptance:**
 - [ ] `pnpm dev` starts all services and apps.
 - [ ] Missing env var stops boot with a message naming it.
@@ -495,7 +495,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [ ] Every screen has a URL; browser back works.
 
 #### M1-14 Email service and file storage
-**Build:** templated emails (verify, invite, reset, channel needs attention) via SMTP / provider, Mailpit locally; MinIO signed upload / download with permission checks and `tenants/{id}/` prefixes.
+**Build:** templated emails (verify, invite, reset, channel needs attention) via SMTP / provider, Mailpit locally; S3 signed upload / download (R2 in prod) with permission checks and `tenants/{id}/` prefixes.
 **Acceptance:**
 - [ ] All email links work end to end locally.
 - [ ] Tenant A cannot obtain a signed URL for tenant B’s file.
@@ -518,7 +518,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [ ] Cancelling the popup leaves no half-created channel.
 
 #### M1-17 WhatsApp adapter
-**Build:** parse every inbound type and status in Section 4.4 into the normalised content shape (requirements Appendix A); send text, media (upload from MinIO), template with variables; `markRead`; error mapping (131047, 131026, 131048, 131056, template errors, Graph 190) to plain-language messages.
+**Build:** parse every inbound type and status in Section 4.4 into the normalised content shape (requirements Appendix A); send text, media (upload from object storage), template with variables; `markRead`; error mapping (131047, 131026, 131048, 131056, template errors, Graph 190) to plain-language messages.
 **Acceptance:**
 - [ ] Fixture test for every inbound type and status passes.
 - [ ] Each mapped error produces the agreed message and the right channel state.
@@ -526,15 +526,15 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 ### Week 4: Inbound pipeline and inbox list
 
 #### M1-18 Inbound pipeline
-**Build:** `meta.event` processor: resolve tenant by `channel_routes`, upsert contact + identity, find or create the open conversation for contact + channel, insert message idempotently (`message_external_ids`), update `last_inbound_at`, `window_expires_at`, unread counts; `media.download` job saving to MinIO; statuses update message rows (retry up to 5 times if the message row is not there yet); emit `message.received`.
+**Build:** `meta.event` processor: resolve tenant by `channel_routes`, upsert contact + identity, find or create the open conversation for contact + channel, insert message idempotently (`message_external_ids`), update `last_inbound_at`, `window_expires_at`, unread counts; `media.download` job saving to object storage; statuses update message rows (retry up to 5 times if the message row is not there yet); emit `message.received`.
 **Acceptance:**
 - [ ] The same webhook delivered twice creates one message.
 - [ ] A status arriving before its message is applied once the message exists.
-- [ ] Voice notes and images play / show from MinIO.
+- [ ] Voice notes and images play / show from object storage.
 - [ ] A suspended tenant still stores inbound messages.
 
 #### M1-19 Realtime gateway
-**Build:** Socket.IO `/rt` with Redis adapter; auth on connect; `workspace:join` with membership check; rooms `tenant:`, `user:`, `conversation:`; client event bus that patches TanStack Query caches; reconnect refetch.
+**Build:** Socket.IO `/rt` with the Redis Streams adapter on Valkey; auth on connect; `workspace:join` with membership check; rooms `tenant:`, `user:`, `conversation:`; client event bus that patches TanStack Query caches; reconnect refetch.
 **Acceptance:**
 - [ ] A second browser sees a new message within 2 seconds.
 - [ ] An Agent without “see all” does not receive events for conversations assigned to others.
@@ -635,7 +635,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [ ] No high or critical findings open.
 
 #### M1-34 Backups, monitoring, load test
-**Build:** WAL archiving + daily base backup to off-site storage; MinIO nightly sync; Sentry; Prometheus + Grafana dashboards; Uptime Kuma + status page; alerts (queue age > 60 s, webhook 5xx, disk > 80%, backup failure); k6 test of webhook ingress and inbox API.
+**Build:** WAL archiving + daily base backup to off-site storage; media already off-server in R2; Sentry; Prometheus + Grafana dashboards; Uptime Kuma + status page; alerts (queue age > 60 s, webhook 5xx, disk > 80%, backup failure); k6 test of webhook ingress and inbox API.
 **Acceptance:**
 - [ ] Restore drill completed and timed (runbook updated).
 - [ ] 100 webhooks per second for 10 minutes with p99 ack under 300 ms; inbox list p95 under 300 ms with 300 virtual agents.

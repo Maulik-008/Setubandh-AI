@@ -438,7 +438,7 @@ Release to all beta workspaces from **22 February 2027**, AI off by default; eac
 - [ ] WhatsApp replies contain no Markdown headings or bracket links.
 
 #### M2-11 Image understanding
-**Build:** pass customer images (from MinIO, resized) to the model as image input; the AI can describe and match them to products through `search_products`.
+**Build:** pass customer images (from object storage, resized) to the model as image input; the AI can describe and match them to products through `search_products`.
 **Acceptance:**
 - [ ] A photo of a catalogue item returns a matching product in the golden set at least 7 times out of 10.
 

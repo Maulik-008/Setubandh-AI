@@ -14,9 +14,9 @@
 - `docs/prototype/setubandh_prototype.html` — interactive UI reference (layout and behaviour, not production code).
 - For any UI work: `.claude/skills/paper-pastel-studio/SKILL.md` and the Astryx agent docs (`npx @astryxdesign/cli docs <topic>`, once installed).
 
-## Stack (target, per requirements §4.3)
+## Stack (target, per requirements §4.3 and ADR 0011)
 
-pnpm + Turborepo monorepo. Backend: Node 22, NestJS 11 (Fastify), Drizzle ORM, PostgreSQL 17 + pgvector, BullMQ + Redis 7, Socket.IO, MinIO.
+pnpm + Turborepo monorepo. Backend: Node 26 LTS, NestJS 12 (Fastify 5), Drizzle ORM 0.45 (pinned), PostgreSQL 18 + pgvector, BullMQ v6 OSS + Valkey 8.1, Socket.IO, Cloudflare R2 via the S3 API (ADR 0011).
 Frontend: React 19, Vite 7, Astryx (`@astryxdesign/core`) themed with Paper & Pastel, Tailwind v4 via the Astryx bridge, TanStack Query, React Router v7, Zod.
 AI (MVP 2): Claude API via `@anthropic-ai/sdk`; model IDs come from config, never hard-coded.
 

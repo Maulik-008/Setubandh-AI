@@ -185,9 +185,9 @@ flowchart LR
   end
 
   subgraph Data["Data"]
-    PG[(PostgreSQL 17<br/>+ pgvector + RLS)]
-    RD[(Redis 7<br/>queues, locks, cache, pub/sub)]
-    S3[(MinIO / S3<br/>media files)]
+    PG[(PostgreSQL 18<br/>+ pgvector + RLS)]
+    RD[(Valkey 8.1<br/>queues, locks, cache, pub/sub)]
+    S3[(Cloudflare R2<br/>S3 API, media files)]
   end
 
   subgraph Ext["External services"]
@@ -211,7 +211,7 @@ flowchart LR
   API --> PAY
   WRK --> MAIL
   PAY -->|billing webhooks| PX
-  API <-->|Socket.IO via Redis adapter| WEB
+  API <-->|Socket.IO via Valkey adapter| WEB
 ```
 
 ## 4.2 Request flows
@@ -270,13 +270,13 @@ sequenceDiagram
 | Layer | Choice | Why |
 |---|---|---|
 | Language | **TypeScript** end to end | One language for frontend, backend, shared types and validation schemas. Claude Code is strongest when types are shared. |
-| Runtime | **Node.js 22 LTS** | Mature, official SDKs for Anthropic, Razorpay and Stripe; good fit for I/O-heavy messaging. |
-| Backend framework | **NestJS 11** on the Fastify adapter | Modules, dependency injection, guards and interceptors map cleanly to tenancy, auth and permissions. Opinionated structure keeps Claude-generated code consistent. |
-| Database | **PostgreSQL 17** with **pgvector**, **pg_trgm**, **citext** | Your choice; RLS for tenant isolation; vectors for the KB; full-text and trigram search for contacts and messages. |
-| ORM / SQL | **Drizzle ORM** + drizzle-kit migrations | SQL-first, typed, works naturally with `SET LOCAL` for RLS inside transactions. |
-| Queues and jobs | **BullMQ** on **Redis 7** | Delayed jobs (follow-ups, debounce), retries with backoff, rate limiting, per-tenant fairness. |
-| Realtime | **Socket.IO** with Redis adapter | Rooms per tenant, user and conversation; reconnection handled. |
-| File storage | **MinIO** (self-hosted, S3 API) | Runs on your own server; swap to Cloudflare R2 or AWS S3 by config. |
+| Runtime | **Node.js 26 LTS** (ADR 0011) | Mature, official SDKs for Anthropic, Razorpay and Stripe; good fit for I/O-heavy messaging. |
+| Backend framework | **NestJS 12** on the Fastify 5 adapter | Modules, dependency injection, guards and interceptors map cleanly to tenancy, auth and permissions. Opinionated structure keeps Claude-generated code consistent. |
+| Database | **PostgreSQL 18** with **pgvector**, **pg_trgm**, **citext** | Your choice; RLS for tenant isolation; vectors for the KB; full-text and trigram search for contacts and messages. |
+| ORM / SQL | **Drizzle ORM** 0.45.x (pinned; upgrade at 1.0 GA) + drizzle-kit migrations | SQL-first, typed, works naturally with `SET LOCAL` for RLS inside transactions. |
+| Queues and jobs | **BullMQ v6** (open source) on **Valkey 8.1** (BSD fork of Redis) | Delayed jobs (follow-ups), deduplication for debounce, retries with backoff, priorities, rate limiting. Per-tenant fairness is our own concurrency cap (BullMQ Groups is Pro-only). |
+| Realtime | **Socket.IO** 4 with the Redis Streams adapter (Valkey-compatible) | Rooms per tenant, user and conversation; reconnection handled. |
+| File storage | **Cloudflare R2** via the S3 API; a local S3-compatible container (SeaweedFS) in dev and CI | MinIO community edition is archived (ADR 0011). Zero egress fees; code stays S3-generic so the provider can change by config. |
 | AI | **Claude API** via `@anthropic-ai/sdk`: `claude-haiku-5-5` default, `claude-sonnet-5-5` escalation | Tool use, prompt caching, strong multilingual replies. Model IDs are config, not code. |
 | Embeddings | Provider interface; default chosen in ticket P3-02 (Voyage AI or OpenAI) | Claude has no embeddings endpoint; keep the provider swappable. |
 | Validation | **Zod** schemas in `packages/shared` | Same schema validates API input, forms and AI tool arguments. |
@@ -306,6 +306,8 @@ sequenceDiagram
 | ADR-08 | **Astryx components themed with Paper & Pastel tokens**; Astryx's `Theme` owns light and dark mode | Paper & Pastel React kit only | The user chose Astryx for components; Paper & Pastel supplies the visual identity. One owner for colour mode avoids two competing dark-mode systems. |
 | ADR-09 | **Webhook ingress only verifies, stores and enqueues** | Process inline | Meta expects fast 200 responses; heavy work in the request causes retries and duplicates. |
 | ADR-10 | **Prices, stock and order totals always come from the database through tools**, never from model memory | Put the catalog in the prompt | Prevents hallucinated prices; catalogs can be large. |
+
+Later decisions live in `docs/adr/`. [ADR 0011](adr/0011-backend-stack-refresh.md) (2026-11-22) amends ADR-01's versions and §4.3: Node 26, NestJS 12, PostgreSQL 18, Valkey 8.1 with BullMQ v6 OSS, Cloudflare R2 instead of MinIO, Drizzle 0.45 pinned, and 1 API + 1 worker at launch.
 
 ## 4.5 Repository layout
 
@@ -347,7 +349,7 @@ orbit/
 | `admin.yourdomain.com` | Super Admin app (IP allowlist optional, 2FA mandatory) |
 | `api.yourdomain.com` | REST API and WebSocket |
 | `hooks.yourdomain.com` | Meta and billing webhooks (separate host so it can be scaled or rate-limited separately) |
-| `files.yourdomain.com` | Signed media URLs via MinIO |
+| `files.yourdomain.com` | Signed media URLs for R2 (optional custom domain) |
 | `status.yourdomain.com` | Public status page (Uptime Kuma) |
 
 ---
@@ -411,7 +413,7 @@ stateDiagram-v2
 ## 5.4 Per-tenant limits and fairness
 
 - Plan limits (Section 8) are read from the tenant's effective entitlements (plan plus add-ons plus admin overrides), cached in Redis for 60 seconds.
-- **Queue fairness:** BullMQ group or rate-limiter keys per tenant so one tenant's broadcast or backlog cannot delay other tenants' AI replies. AI reply jobs have higher priority than follow-ups and broadcasts.
+- **Queue fairness:** a per-tenant concurrency cap (counter in Valkey) and per-tenant rate-limiter keys so one tenant's broadcast or backlog cannot delay other tenants' AI replies. AI reply jobs have higher priority than follow-ups and broadcasts.
 - **API rate limits:** 300 requests per minute per user, 3,000 per tenant (configurable per plan).
 - **AI concurrency:** at most N concurrent AI runs per tenant (N by plan), the rest wait in queue.
 
@@ -1087,7 +1089,7 @@ Rules you must always follow:
 
 - One `ChannelAdapter` interface: `sendText`, `sendMedia`, `sendTemplate`, `sendInteractive`, `sendProductCard`, `markRead`, `sendTyping`, `privateReplyToComment`, `replyToCommentPublicly`.
 - Outbound flow: create message row `queued` → job `outbound.send` → adapter call → update with external ID and `sent`, or `failed` with code and plain-language explanation.
-- **Media:** inbound media is downloaded from Meta's temporary URL by the worker immediately and stored in MinIO; outbound media is uploaded from MinIO (WhatsApp media upload or public signed URL).
+- **Media:** inbound media is downloaded from Meta's temporary URL by the worker immediately and stored in object storage (R2); outbound media is uploaded from object storage (WhatsApp media upload or public signed URL).
 - **Rate limits:** per-number throughput and per-pair limits on WhatsApp, Page-level rate limits on Messenger / Instagram. Respect `429` and Meta rate-limit error codes with backoff; tenant-level BullMQ limiter per channel.
 - **Error mapping** (examples, verify the full current list): WhatsApp 131047 (outside the re-engagement window: send a template instead), 131026 (message undeliverable), 131048 / 131056 (spam or pair rate limit: slow down), template errors (132xxx: template paused, rejected or parameters wrong), Graph 190 (token invalid: mark channel "needs attention").
 
@@ -1341,7 +1343,7 @@ erDiagram
 | Reports | `GET /reports/overview`, `/reports/conversations`, `/reports/response-times`, `/reports/pipeline`, `/reports/agents`, `/reports/ai`, `/reports/automations` (all with date range and filters) |
 | Notifications | `GET /notifications`, `POST /notifications/read`, `GET/PUT /notification-prefs`, `POST /push-subscriptions` |
 | Billing | `GET /billing` (plan, usage, invoices), `POST /billing/checkout` (plan / interval), `POST /billing/change-plan`, `POST /billing/addons`, `POST /billing/cancel`, `POST /billing/resume`, `PUT /billing/details` (GSTIN, address) |
-| Files | `POST /files/upload-url` (signed PUT to MinIO), `GET /files/:id` (signed GET) |
+| Files | `POST /files/upload-url` (signed PUT to object storage), `GET /files/:id` (signed GET) |
 | Canned / labels / hours | CRUD `/canned-responses`, `/labels`, `GET/PUT /business-hours` |
 | Webhooks (public) | `GET/POST /webhooks/meta`, `POST /webhooks/razorpay`, `POST /webhooks/stripe`, `POST /webhooks/calcom`, `POST /webhooks/calendly`, `POST /meta/data-deletion` |
 
@@ -1561,7 +1563,7 @@ Usage meters on top with real numbers; three plan cards (Growth featured on tint
 | AI reply sent (p95) | under 10 s after the customer's last message (includes the 3 s debounce) |
 | Read API latency (p95) | under 300 ms; write under 500 ms |
 | Report queries (p95) | under 1.5 s (rollup tables) |
-| Capacity at launch | 100 tenants, 300 concurrent agents, 2 million messages / month, 20 inbound messages / s sustained, 100 / s burst |
+| Capacity at launch | About 10 tenants in beta (ADR 0011); scale-out target: 100 tenants, 300 concurrent agents, 2 million messages / month, 20 inbound messages / s sustained, 100 / s burst |
 | Scale path | Add API and worker replicas (stateless); move Postgres to a dedicated server or managed instance; Redis to its own node; webhook ingress as its own service |
 
 ## 14.2 Availability and recovery
@@ -1594,7 +1596,7 @@ Usage meters on top with real numbers; three plan cards (Growth featured on tint
 
 - **Roles:** each tenant is the data fiduciary / controller for its customers' data; Orbit is the data processor. Publish a Data Processing Addendum (DPA) template.
 - **India:** Digital Personal Data Protection Act, 2023 (and its Rules): purpose limitation, deletion on request, breach notification process, grievance contact.
-- **EU / UK tenants (if sold there):** GDPR-aligned DPA, sub-processor list (Anthropic, embeddings provider, email provider, payment providers, hosting), standard contractual clauses as needed.
+- **EU / UK tenants (if sold there):** GDPR-aligned DPA, sub-processor list (Anthropic, embeddings provider, email provider, payment providers, hosting, Cloudflare R2 for media and backups), standard contractual clauses as needed.
 - **Meta:** Section 10.10.
 - **Data location:** data lives where your server is; state this in the privacy policy; sub-processors (Claude API) process data outside India.
 - **Retention:** Section 8.2 per plan; audit logs 2 years; invoices as required by tax law.
@@ -1633,19 +1635,19 @@ Your hosting must be a VPS or dedicated server with root access and Docker (shar
 | Service | Replicas | Notes |
 |---|---|---|
 | `caddy` | 1 | TLS, reverse proxy, static hosting for `web` and `admin` builds, security headers |
-| `api` | 2 | Stateless NestJS; health `/health/live`, `/health/ready` |
-| `worker` | 2 | BullMQ processors; scale per queue with concurrency settings |
-| `scheduler` | 1 | Repeatable jobs (follow-ups due, health checks, rollups, retention); can be a mode of the worker with a leader lock |
-| `postgres` | 1 | PostgreSQL 17 with pgvector; tuned `shared_buffers`, `work_mem`; WAL archiving with WAL-G or pgBackRest |
-| `redis` | 1 | AOF persistence on; `maxmemory-policy noeviction` (queues must not be evicted) |
-| `minio` | 1 | Media; nightly sync to off-site bucket |
+| `api` | 1 at launch (2+ later) | Stateless NestJS; health `/health/live`, `/health/ready` |
+| `worker` | 1 at launch (2+ later) | BullMQ processors; scale per queue with concurrency settings |
+| `scheduler` | in worker | Repeatable jobs (follow-ups due, health checks, rollups, retention); runs as a mode of the worker with a leader lock |
+| `postgres` | 1 | PostgreSQL 18 with pgvector; tuned `shared_buffers`, `work_mem`; WAL archiving with WAL-G or pgBackRest |
+| `valkey` | 1 | Valkey 8.1; AOF persistence on; `maxmemory-policy noeviction` (queues must not be evicted) |
+| (object storage) | n/a | Media lives in Cloudflare R2, not on the server |
 | `uptime-kuma`, `prometheus`, `grafana` | 1 each | Monitoring (can run on a separate small VPS later) |
 
 ## 15.3 Environments
 
 | Env | Purpose | Meta app |
 |---|---|---|
-| Local | Docker Compose with Postgres, Redis, MinIO, Mailpit; a tunnel (Cloudflare Tunnel or ngrok) for Meta webhooks | Development-mode test app |
+| Local | Docker Compose with Postgres, Valkey, a local S3-compatible container, Mailpit; a tunnel (Cloudflare Tunnel or ngrok) for Meta webhooks | Development-mode test app |
 | Staging | Same images as production; seeded demo tenants; Razorpay / Stripe test mode | Separate test app or the main app in development mode with test numbers |
 | Production | Real tenants | Live app after App Review |
 
@@ -1658,7 +1660,7 @@ Your hosting must be a VPS or dedicated server with root access and Docker (shar
 ## 15.5 Backups and restore
 
 - Postgres: continuous WAL archiving + daily base backup to the off-site bucket, kept 30 days; encrypted.
-- MinIO: nightly sync to the off-site bucket, kept 30 days.
+- Media: stored in Cloudflare R2 (durable, off-server); backups go to a separate, client-side encrypted R2 bucket.
 - Restore drill: monthly restore of the latest backup into staging, checked by a script (row counts, latest message timestamp). Runbook in `docs/runbooks/restore.md`.
 
 ## 15.6 Configuration (environment variables, abridged)
@@ -1704,7 +1706,7 @@ Your hosting must be a VPS or dedicated server with root access and Docker (shar
 - For any UI work: .claude/skills/paper-pastel-studio/SKILL.md and Astryx agent docs (npx @astryxdesign/cli docs <topic>)
 
 ## Stack
-pnpm + Turborepo monorepo. Backend: Node 22, NestJS 11 (Fastify), Drizzle ORM, PostgreSQL 17 + pgvector, BullMQ + Redis 7, Socket.IO.
+pnpm + Turborepo monorepo. Backend: Node 26, NestJS 12 (Fastify), Drizzle ORM, PostgreSQL 18 + pgvector, BullMQ + Valkey 8.1, Socket.IO, R2.
 Frontend: React 19, Vite 7, Astryx (@astryxdesign/core) themed with Paper & Pastel, Tailwind v4 via the Astryx bridge, TanStack Query, React Router v7, Zod.
 
 ## Commands
@@ -1801,7 +1803,7 @@ Estimates assume **one developer working with Claude Code**, full time. Each tic
 | ID | Ticket | Refs | Key acceptance criteria |
 |---|---|---|---|
 | P0-01 | Monorepo scaffold: pnpm, Turborepo, TS strict configs, ESLint (with boundaries plugin), Prettier, Vitest | 4.5 | `pnpm lint`, `typecheck`, `test` pass on empty apps; cross-module import violation fails lint |
-| P0-02 | Docker Compose dev stack (Postgres 17 + pgvector, Redis 7, MinIO, Mailpit) and typed config module | 15.3, 15.6 | `pnpm dev` starts everything; app refuses to boot with a missing env var and names it |
+| P0-02 | Docker Compose dev stack (Postgres 18 + pgvector, Valkey 8.1, local S3 container, Mailpit) and typed config module | 15.3, 15.6 | `pnpm dev` starts everything; app refuses to boot with a missing env var and names it |
 | P0-03 | NestJS `api` and `worker` skeletons: Fastify, Pino with requestId, AppError filter, health endpoints, OpenAPI | 4.3, 12.1 | `/health/ready` checks DB and Redis; error responses match the 12.1 shape |
 | P0-04 | `packages/db`: Drizzle, migrations, two DB roles, `withTenant`, RLS helper, first tables (`tenants`, `users`, `memberships`) | 5.2, 11 | A query outside `withTenant` on a tenant table returns zero rows; migration creates roles and policies |
 | P0-05 | **Design system spike**: `apps/web` and `apps/admin` (React 19, Vite 7), Astryx install and `cli init`, Paper & Pastel theme via `defineTheme`, cascade layers, Tailwind bridge, Geist, Lucide, light / dark toggle, demo page (button, input, card, table, dialog, badge) | 13.3 | Both modes match Paper & Pastel references; `contrast.py` passes; `audit.py` 0 errors; axe 0 serious; layer order verified (utilities override components) |
@@ -1820,7 +1822,7 @@ Estimates assume **one developer working with Claude Code**, full time. Each tic
 | P1-05 | Audit log service (tenant and platform), append-only grants | FR-AUD-01..03 | Update / delete on audit tables is denied for the app role |
 | P1-06 | App shell UI: sidebar, top bar, auth screens, availability toggle, 404 / error pages | 13.4 | Shell passes `audit.py` and axe in both modes at 375 and 1280 |
 | P1-07 | Onboarding wizard framework and business profile step; dashboard checklist | FR-ONB-01, 09 | Wizard resumes at the last incomplete step |
-| P1-08 | Files module: MinIO signed upload / download with permission checks | 12.2 | Signed URL from tenant A cannot be issued for tenant B's file |
+| P1-08 | Files module: S3 signed upload / download with permission checks | 12.2 | Signed URL from tenant A cannot be issued for tenant B's file |
 | P1-09 | Email service with templates (verify, invite, reset) | 4.3 | Emails visible in Mailpit; links work end to end |
 
 ## 18.4 Phase 2 — WhatsApp and inbox core
@@ -1830,8 +1832,8 @@ Estimates assume **one developer working with Claude Code**, full time. Each tic
 | P2-01 | Webhook ingress: GET verification, signature check, raw storage (monthly partitions), enqueue | 10.4 | Invalid signature 401; p99 ack under 300 ms in a local load test |
 | P2-02 | WhatsApp Embedded Signup (frontend SDK + backend code exchange, register number, subscribe app, sync), `channel_routes` | FR-CH-01; 10.2 | Test number connects from the UI and receives messages; token stored encrypted |
 | P2-03 | WhatsApp adapter: parse all inbound types and statuses; send text, media, template, interactive; error mapping | 10.5 | Fixture tests for every type; error codes map to plain-language messages |
-| P2-04 | Contacts, identities, conversations, messages persistence with idempotency; media download to MinIO | FR-CON-01; 11.3 | Duplicate webhook creates one message; media playable from MinIO |
-| P2-05 | Realtime gateway (Socket.IO + Redis adapter), rooms, events, client event bus | 12.4 | Second browser sees a new message within 2 s; agent without permission does not receive it |
+| P2-04 | Contacts, identities, conversations, messages persistence with idempotency; media download to object storage | FR-CON-01; 11.3 | Duplicate webhook creates one message; media playable from object storage |
+| P2-05 | Realtime gateway (Socket.IO + Valkey adapter), rooms, events, client event bus | 12.4 | Second browser sees a new message within 2 s; agent without permission does not receive it |
 | P2-06 | Inbox list API and UI: views, filters, search, virtualised list | FR-INBOX-01..05, 08 | Filters in URL; 5,000 conversations scroll smoothly |
 | P2-07 | Thread and composer: message rendering, statuses, attachments, canned responses, notes with mentions | FR-INBOX-10..13, 16, 47 | Every message type renders; failed send shows reason and retry |
 | P2-08 | 24-hour window helper, composer states, template send from inbox, template list / sync / create | FR-INBOX-14; FR-TPL-01, 02, 04 | Free text blocked outside the window; template with variables sends and appears in the thread |

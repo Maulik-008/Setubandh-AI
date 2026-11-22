@@ -30,13 +30,13 @@ Dates are indicative. Public beta also depends on Meta App Review approval.
 
 ## Planned tech stack
 
-Details and rationale: [requirements §4](docs/requirements.md).
+Details and rationale: [requirements §4](docs/requirements.md) and [ADR 0011](docs/adr/0011-backend-stack-refresh.md).
 
 | Layer | Choice |
 |---|---|
-| Language / runtime | TypeScript, Node.js 22 |
-| Backend | NestJS 11 (Fastify), modular monolith + BullMQ worker |
-| Data | PostgreSQL 17 (pgvector, RLS for tenant isolation), Redis 7, MinIO (S3) |
+| Language / runtime | TypeScript, Node.js 26 LTS |
+| Backend | NestJS 12 (Fastify), modular monolith + BullMQ worker |
+| Data | PostgreSQL 18 (pgvector, RLS for tenant isolation), Valkey 8.1, Cloudflare R2 (S3 API) |
 | Realtime | Socket.IO |
 | AI | Claude API (Haiku default, Sonnet escalation) |
 | Frontend | React 19, Vite 7, Astryx components themed with Paper & Pastel, Tailwind v4 |
@@ -82,7 +82,7 @@ There is nothing to install or run yet. To explore:
 1. Open `docs/prototype/setubandh_prototype.html` in a browser.
 2. Read the MVP 1 plan, then the requirements sections it references.
 
-Once ticket M1-01 and M1-02 are done, this section will document local setup (Node 22, pnpm, Docker) and `pnpm dev`. Copy `.env.example` to `.env` for local configuration; never commit `.env`.
+Once ticket M1-01 and M1-02 are done, this section will document local setup (Node 26, pnpm, Docker) and `pnpm dev`. Copy `.env.example` to `.env` for local configuration; never commit `.env`.
 
 ## Working with Claude Code
 
@@ -92,6 +92,7 @@ This project is built ticket by ticket with Claude Code. Setup is committed in t
 - `.claude/settings.json` allows safe read-only commands and blocks reading `.env`, force-push, pushing to `main` and destructive deletes.
 - Slash commands: `/ticket <ID>` loads a ticket and proposes a plan before any code; `/rls-check` audits the diff for tenant-isolation gaps; `/ui-review` runs the Paper & Pastel review; `/evals` runs AI evals (MVP 2+).
 - The `paper-pastel-studio` skill in `.claude/skills/` is used for all UI work.
+- Engineering skills from [mattpocock/skills](https://github.com/mattpocock/skills) live in `.claude/skills/` too (for example `/grill-with-docs`, `/tdd`, `/to-tickets`). Domain terms are in [`GLOSSARY.md`](GLOSSARY.md).
 
 Workflow: **one ticket = one branch = one session.** Start with `/ticket M1-01`, review the plan, then implement with tests. Details: [requirements §17](docs/requirements.md).
 
