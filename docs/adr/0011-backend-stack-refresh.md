@@ -54,3 +54,10 @@ Ticket M1-01 does not start until this ADR is merged.
 - Per-workspace fairness is our own code and needs a test: one workspace's backlog must not delay another workspace's AI replies.
 - A rolling deploy with a single API replica causes a brief interruption. That is acceptable at beta scale; add a second replica before paid launch (M3) if needed.
 - Dependency versions are pinned. Drizzle 1.0 and PostgreSQL 19 are tracked as follow-up upgrades.
+
+## Addendum (2026-11-22, M1-01)
+
+Two tooling versions are pinned while scaffolding:
+
+- **Vite 8** instead of Vite 7. The current `@vitejs/plugin-react` requires Vite 8. M1-05 must confirm Astryx and StyleX work with Vite 8, and record the fallback if they don't.
+- **TypeScript 6.0.x** instead of 7.0. TypeScript 7 (the native compiler) handles NestJS decorator metadata, but typescript-eslint supports TypeScript only up to 6.0, and type-aware linting depends on it. Move to TypeScript 7 once typescript-eslint supports it.

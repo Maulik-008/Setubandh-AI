@@ -286,7 +286,7 @@ Comment permissions (`pages_read_engagement`, `pages_manage_engagement`, `instag
 
 ## 6. Technical scope
 
-Stack exactly as `requirements.md` §4.3 and ADR 0011: Node.js 26 LTS + NestJS 12 (Fastify), PostgreSQL 18 (+ pgvector installed now, used in MVP 2), Valkey 8.1 + BullMQ v6, Socket.IO, Cloudflare R2 (S3 API), React 19 + Vite 7 + Astryx themed with Paper & Pastel, Tailwind v4 bridge, pnpm + Turborepo.
+Stack exactly as `requirements.md` §4.3 and ADR 0011: Node.js 26 LTS + NestJS 12 (Fastify), PostgreSQL 18 (+ pgvector installed now, used in MVP 2), Valkey 8.1 + BullMQ v6, Socket.IO, Cloudflare R2 (S3 API), React 19 + Vite 8 + Astryx themed with Paper & Pastel, Tailwind v4 bridge, pnpm + Turborepo.
 
 ### 6.1 Apps and modules built in MVP 1
 
@@ -369,6 +369,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 | ID | Ticket | Week | Requirements refs |
 |---|---|---|---|
 | M1-01 | Monorepo and tooling | 1 | P0-01 |
+| M1-01a | Test harness (backend + real-browser frontend) | 1 | §16 |
 | M1-02 | Local stack and typed config | 1 | P0-02 |
 | M1-03 | API and worker skeletons | 1 | P0-03 |
 | M1-04 | Database foundation with row-level security | 1 | P0-04 |
@@ -417,6 +418,20 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test` pass on the empty apps.
 - [ ] Importing another module’s internals (not its service) fails lint.
 
+**Spec:** [docs/specs/m1-01-monorepo-and-tooling/spec.md](../specs/m1-01-monorepo-and-tooling/spec.md)
+
+#### M1-01a Test harness (backend + real-browser frontend)
+*Added 2026-11-22 so every later ticket can ship tests from day one (requirements §16).*
+**Build:** backend unit tests (Vitest) and integration tests against real Postgres 18 + pgvector and Valkey 8.1 started by Testcontainers; a NestJS (Fastify) test-app helper using `inject`. Frontend: a minimal plain React + Vite shell in `apps/web` (no Astryx; that stays M1-05); component tests in a real browser (Vitest browser mode + Playwright + Testing Library) with MSW for API mocks; Playwright E2E across Chromium, Firefox and WebKit, desktop and phone viewports, light and dark mode, with axe accessibility checks, screenshot comparison, and traces on failure.
+**Acceptance:**
+- [ ] `pnpm test` runs unit tests without Docker; `pnpm test:integration` starts Postgres + Valkey containers and proves pgvector is available.
+- [ ] A NestJS test app boots on Fastify and answers an injected request.
+- [ ] `pnpm test:browser` runs a React component test in real Chromium with an MSW-mocked API call.
+- [ ] `pnpm test:e2e` loads the web shell, passes axe with 0 serious or critical issues in light and dark mode, and matches its screenshot baseline.
+- [ ] A failing E2E test keeps a trace and screenshot.
+
+**Spec:** [docs/specs/m1-01-monorepo-and-tooling/spec.md](../specs/m1-01-monorepo-and-tooling/spec.md)
+
 #### M1-02 Local stack and typed config
 **Build:** `docker-compose.dev.yml` with Postgres 18 + pgvector, Valkey 8.1, a local S3-compatible container (SeaweedFS), Mailpit. Config module validates every env var with Zod at boot.
 **Acceptance:**
@@ -436,7 +451,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [ ] Inserting a row with another tenant’s id inside `withTenant` fails.
 
 #### M1-05 Design system spike (Astryx + Paper & Pastel)
-**Build:** `apps/web` and `apps/admin` on React 19 + Vite 7; install `@astryxdesign/core`, `@stylexjs/stylex`, theme, CLI; `npx @astryxdesign/cli init`; Paper & Pastel theme via `defineTheme`; cascade layers and Tailwind v4 bridge as requirements §13.3.2; Geist; Lucide; light / dark toggle through Astryx `Theme`; demo page with button, input, select, card, table, dialog, badge, toast.
+**Build:** `apps/web` and `apps/admin` on React 19 + Vite 8; install `@astryxdesign/core`, `@stylexjs/stylex`, theme, CLI; `npx @astryxdesign/cli init`; Paper & Pastel theme via `defineTheme`; cascade layers and Tailwind v4 bridge as requirements §13.3.2; Geist; Lucide; light / dark toggle through Astryx `Theme`; demo page with button, input, select, card, table, dialog, badge, toast.
 **Acceptance:**
 - [ ] Both modes match the prototype’s look (white paper / ink, one ink button, pastel chips).
 - [ ] Tailwind utilities override Astryx component defaults (layer order proven).

@@ -39,7 +39,7 @@ Details and rationale: [requirements §4](docs/requirements.md) and [ADR 0011](d
 | Data | PostgreSQL 18 (pgvector, RLS for tenant isolation), Valkey 8.1, Cloudflare R2 (S3 API) |
 | Realtime | Socket.IO |
 | AI | Claude API (Haiku default, Sonnet escalation) |
-| Frontend | React 19, Vite 7, Astryx components themed with Paper & Pastel, Tailwind v4 |
+| Frontend | React 19, Vite 8, Astryx components themed with Paper & Pastel, Tailwind v4 |
 | Monorepo / tooling | pnpm workspaces, Turborepo, Vitest, Playwright |
 | Infra | Docker Compose on a self-hosted VPS, Caddy, GitLab CI / GitHub Actions |
 

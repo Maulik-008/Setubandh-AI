@@ -283,7 +283,7 @@ sequenceDiagram
 | Auth | Own implementation: argon2id, short-lived JWT access token, rotating refresh token cookie, TOTP 2FA | Full control over multi-workspace membership and platform roles. |
 | Billing | **Razorpay Subscriptions** (India, INR, UPI Autopay) first; **Stripe Billing** for international, behind one `BillingProvider` interface | Local payment methods and GST invoices for India; global cards elsewhere. |
 | Email | SMTP on your domain or a transactional provider (Amazon SES, Resend or Brevo) | Invites, password reset, alerts, invoices. Mailpit for local dev. |
-| Frontend | **React 19** + **Vite 7** + TypeScript | Astryx requires React 19 or later. |
+| Frontend | **React 19** + **Vite 8** + TypeScript | Astryx requires React 19 or later. |
 | UI system | **Astryx** (`@astryxdesign/core`, StyleX) themed with **Paper & Pastel** tokens; **Tailwind CSS v4** via the Astryx Tailwind bridge for layout utilities | See Section 13.3. |
 | Frontend data | TanStack Query v5, Zustand, React Router v7, react-hook-form + Zod, dnd-kit, Socket.IO client | Server state, light client state, forms and drag and drop. |
 | Icons and fonts | **Lucide** (stroke 1.75), **Geist Sans + Geist Mono** | Paper & Pastel rules. |
@@ -1385,7 +1385,7 @@ erDiagram
 | `apps/web` | `app.yourdomain.com` | Tenant Owners, Admins, Managers, Agents, Viewers | Main product; PWA (P1) |
 | `apps/admin` | `admin.yourdomain.com` | Platform admins | Same design system; denser tables; separate auth realm |
 
-Both are React 19 single-page apps built with Vite 7, sharing `packages/ui` (theme + composed components) and `packages/shared` (types, Zod schemas, permissions).
+Both are React 19 single-page apps built with Vite 8, sharing `packages/ui` (theme + composed components) and `packages/shared` (types, Zod schemas, permissions).
 
 ## 13.2 Frontend stack and patterns
 
@@ -1707,7 +1707,7 @@ Your hosting must be a VPS or dedicated server with root access and Docker (shar
 
 ## Stack
 pnpm + Turborepo monorepo. Backend: Node 26, NestJS 12 (Fastify), Drizzle ORM, PostgreSQL 18 + pgvector, BullMQ + Valkey 8.1, Socket.IO, R2.
-Frontend: React 19, Vite 7, Astryx (@astryxdesign/core) themed with Paper & Pastel, Tailwind v4 via the Astryx bridge, TanStack Query, React Router v7, Zod.
+Frontend: React 19, Vite 8, Astryx (@astryxdesign/core) themed with Paper & Pastel, Tailwind v4 via the Astryx bridge, TanStack Query, React Router v7, Zod.
 
 ## Commands
 pnpm dev | pnpm test | pnpm test:integration | pnpm lint | pnpm typecheck | pnpm db:migrate | pnpm db:seed | pnpm ui:audit | pnpm ai:evals
@@ -1806,7 +1806,7 @@ Estimates assume **one developer working with Claude Code**, full time. Each tic
 | P0-02 | Docker Compose dev stack (Postgres 18 + pgvector, Valkey 8.1, local S3 container, Mailpit) and typed config module | 15.3, 15.6 | `pnpm dev` starts everything; app refuses to boot with a missing env var and names it |
 | P0-03 | NestJS `api` and `worker` skeletons: Fastify, Pino with requestId, AppError filter, health endpoints, OpenAPI | 4.3, 12.1 | `/health/ready` checks DB and Redis; error responses match the 12.1 shape |
 | P0-04 | `packages/db`: Drizzle, migrations, two DB roles, `withTenant`, RLS helper, first tables (`tenants`, `users`, `memberships`) | 5.2, 11 | A query outside `withTenant` on a tenant table returns zero rows; migration creates roles and policies |
-| P0-05 | **Design system spike**: `apps/web` and `apps/admin` (React 19, Vite 7), Astryx install and `cli init`, Paper & Pastel theme via `defineTheme`, cascade layers, Tailwind bridge, Geist, Lucide, light / dark toggle, demo page (button, input, card, table, dialog, badge) | 13.3 | Both modes match Paper & Pastel references; `contrast.py` passes; `audit.py` 0 errors; axe 0 serious; layer order verified (utilities override components) |
+| P0-05 | **Design system spike**: `apps/web` and `apps/admin` (React 19, Vite 8), Astryx install and `cli init`, Paper & Pastel theme via `defineTheme`, cascade layers, Tailwind bridge, Geist, Lucide, light / dark toggle, demo page (button, input, card, table, dialog, badge) | 13.3 | Both modes match Paper & Pastel references; `contrast.py` passes; `audit.py` 0 errors; axe 0 serious; layer order verified (utilities override components) |
 | P0-06 | CI pipeline stages 1 to 10 and Dockerfiles for all apps | 15.4 | Pipeline green on `main`; images built and tagged with SHA |
 | P0-07 | `CLAUDE.md`, `.claude/skills/paper-pastel-studio`, `.claude/commands`, `docs/adr`, runbook skeletons | 17 | Files present; `/ticket` command loads a ticket |
 | P0-08 | **(Parallel, non-code)** Meta business verification, Meta app creation, test WABA and number, test Page and Instagram account, Tech Provider onboarding started | 10.1 | Test number can receive a webhook through the dev tunnel |

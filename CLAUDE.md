@@ -17,7 +17,7 @@
 ## Stack (target, per requirements §4.3 and ADR 0011)
 
 pnpm + Turborepo monorepo. Backend: Node 26 LTS, NestJS 12 (Fastify 5), Drizzle ORM 0.45 (pinned), PostgreSQL 18 + pgvector, BullMQ v6 OSS + Valkey 8.1, Socket.IO, Cloudflare R2 via the S3 API (ADR 0011).
-Frontend: React 19, Vite 7, Astryx (`@astryxdesign/core`) themed with Paper & Pastel, Tailwind v4 via the Astryx bridge, TanStack Query, React Router v7, Zod.
+Frontend: React 19, Vite 8, Astryx (`@astryxdesign/core`) themed with Paper & Pastel, Tailwind v4 via the Astryx bridge, TanStack Query, React Router v7, Zod.
 AI (MVP 2): Claude API via `@anthropic-ai/sdk`; model IDs come from config, never hard-coded.
 
 ## Commands (available once M1-01 / M1-02 land)
@@ -55,3 +55,21 @@ AI (MVP 2): Claude API via `@anthropic-ai/sdk`; model IDs come from config, neve
 ## Slash commands (`.claude/commands/`)
 
 `/ticket <ID>` load a ticket and propose a plan · `/rls-check` scan the diff for tenant-isolation gaps · `/ui-review` Paper & Pastel review of changed screens · `/evals` run AI evals (MVP 2+)
+
+## Agent skills
+
+### Issue tracker
+
+Specs and issues are local Markdown in `docs/specs/<ticket-id>-<slug>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` plus `docs/adr/`. See `docs/agents/domain.md`.
+
+### Installed skills
+
+Third-party skills and their licences are listed in `.claude/skills/THIRD_PARTY_SKILLS.md`. Stack skills: `nestjs-best-practices`, `postgres-best-practices`, `playwright-cli`, `react-composition-patterns`, `tdd`, `property-based-testing`, `differential-review`, `supply-chain-risk-auditor`. Their "Setubandh AI overrides" notes and this file win over their examples.
