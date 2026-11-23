@@ -30,6 +30,19 @@ export const ERROR_CODES = {
   },
   PASSWORD_REJECTED: { status: 422, message: 'Choose a different password.' },
   TOO_MANY_ATTEMPTS: { status: 429, message: 'Too many attempts. Wait 15 minutes and try again.' },
+  WORKSPACE_REQUIRED: {
+    status: 400,
+    message: 'Choose a workspace first (X-Workspace-Id header missing or invalid).',
+  },
+  WORKSPACE_NOT_MEMBER: { status: 403, message: 'You are not a member of this workspace.' },
+  WORKSPACE_LIMIT_REACHED: {
+    status: 409,
+    message: 'You already own the maximum number of workspaces (3).',
+  },
+  INVITATION_INVALID: {
+    status: 400,
+    message: 'This invitation is invalid, used or expired. Ask for a new one.',
+  },
   INTERNAL: { status: 500, message: 'Something went wrong on our side. Please try again.' },
   SERVICE_UNAVAILABLE: {
     status: 503,

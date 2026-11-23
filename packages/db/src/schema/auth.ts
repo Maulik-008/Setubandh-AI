@@ -21,6 +21,10 @@ export const SECURITY_EVENT_TYPES = [
   'two_factor_enabled',
   'two_factor_disabled',
   'recovery_code_used',
+  'member_invited',
+  'member_role_changed',
+  'member_removed',
+  'ownership_transferred',
 ] as const;
 export type SecurityEventType = (typeof SECURITY_EVENT_TYPES)[number];
 

@@ -8,6 +8,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AppError } from '@setubandh/shared';
 import type { FastifyRequest } from 'fastify';
+import { IS_PUBLIC } from '../../core/access';
 import { TokenService } from './tokens';
 
 export interface AuthUser {
@@ -18,11 +19,8 @@ export interface AuthUser {
 
 type AuthedRequest = FastifyRequest & { user?: AuthUser };
 
-const IS_PUBLIC = 'auth:public';
 const REQUIRES_VERIFIED_EMAIL = 'auth:verified-email';
 
-/** Route needs no access token (signup, login, health, webhooks). */
-export const Public = () => SetMetadata(IS_PUBLIC, true);
 /** Route needs a verified email, e.g. connecting a channel (FR-AUTH-01): else 403 EMAIL_NOT_VERIFIED. */
 export const RequireVerifiedEmail = () => SetMetadata(REQUIRES_VERIFIED_EMAIL, true);
 /** The signed-in user from the access token. */

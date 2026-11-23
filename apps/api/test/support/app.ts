@@ -6,6 +6,7 @@ import { AppModule } from '../../src/app.module';
 import { configureApp, createFastifyAdapter } from '../../src/app.setup';
 import { ENV } from '../../src/core/env';
 import { ZodBody } from '../../src/core/validation';
+import { UserScoped } from '../../src/core/access';
 import { Public, RequireVerifiedEmail } from '../../src/modules/auth';
 
 export const echoSchema = z.object({
@@ -30,6 +31,7 @@ export class ProbeController {
 
   /** Stands in for "connect a channel" (M1-16) in the EMAIL_NOT_VERIFIED acceptance test. */
   @Get('verified-only')
+  @UserScoped()
   @RequireVerifiedEmail()
   verifiedOnly() {
     return { ok: true };

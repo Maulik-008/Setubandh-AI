@@ -15,13 +15,12 @@ import {
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ENV, type AppEnv } from '../../core/env';
 import { ZodBody } from '../../core/validation';
-import { Public } from './auth.guard';
+import { Public } from '../../core/access';
 import type { RequestMeta } from './auth.repository';
 import { AuthService, type IssuedSession } from './auth.service';
 import { AuthRateLimitGuard } from './rate-limit.guard';
-import { REFRESH_TOKEN_TTL_MS } from './tokens';
+import { REFRESH_COOKIE, withSessionCookie } from './session-cookie';
 
-export const REFRESH_COOKIE = 'sb_refresh';
 const ACCEPTED = {
   status: 'accepted',
   message: 'If the details are right, we have sent an email.',
@@ -126,13 +125,6 @@ export class AuthController {
 
   /** httpOnly, SameSite=Lax, path-scoped refresh cookie (FR-AUTH-03); Secure outside development. */
   private withCookie(reply: FastifyReply, issued: IssuedSession): SessionResponse {
-    void reply.setCookie(REFRESH_COOKIE, issued.refreshToken, {
-      httpOnly: true,
-      secure: this.env.NODE_ENV !== 'development',
-      sameSite: 'lax',
-      path: '/v1/auth',
-      maxAge: Math.floor(REFRESH_TOKEN_TTL_MS / 1000),
-    });
-    return issued.session;
+    return withSessionCookie(reply, issued, this.env);
   }
 }

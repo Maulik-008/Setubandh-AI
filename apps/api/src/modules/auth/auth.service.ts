@@ -165,6 +165,19 @@ export class AuthService {
     return this.issue(user, randomUUID(), meta);
   }
 
+  /**
+   * Start a session for an account that was just created from an invitation (FR-AUTH-06).
+   * The invite link proved the email, so this behaves exactly like a successful login.
+   */
+  async startSession(
+    user: { id: string; email: string; name: string; emailVerifiedAt: Date | null },
+    meta: RequestMeta,
+  ): Promise<IssuedSession> {
+    await this.repo.recordLogin(user.id, this.clock.now());
+    await this.repo.recordSecurityEvent('login_succeeded', user.id, meta);
+    return this.issue(user, randomUUID(), meta);
+  }
+
   /** Rotate the refresh token. A token used twice revokes its whole family (FR-AUTH-03). */
   async refresh(refreshToken: string | undefined, meta: RequestMeta): Promise<IssuedSession> {
     if (!refreshToken) throw new AppError('SESSION_REVOKED');

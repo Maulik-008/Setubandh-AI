@@ -6,11 +6,12 @@ export const PASSWORD_MIN_LENGTH = 10;
 export const PASSWORD_MAX_LENGTH = 128;
 
 const email = z.email().max(254).toLowerCase().trim();
-const password = z
+export const passwordSchema = z
   .string()
   .min(PASSWORD_MIN_LENGTH, { error: `Use at least ${PASSWORD_MIN_LENGTH} characters.` })
   .max(PASSWORD_MAX_LENGTH, { error: `Use at most ${PASSWORD_MAX_LENGTH} characters.` });
 const token = z.string().min(20).max(200);
+const password = passwordSchema;
 
 export const signupRequestSchema = z
   .object({

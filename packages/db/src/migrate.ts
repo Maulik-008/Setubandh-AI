@@ -19,12 +19,26 @@ export async function migrate(options: { adminUrl: string; appUrl: string }): Pr
   try {
     await runMigrations(drizzle(client), { migrationsFolder: MIGRATIONS_FOLDER });
     const password = decodeURIComponent(app.password);
-    if (password) {
-      await client.query(
-        `ALTER ROLE orbit_app WITH LOGIN PASSWORD ${client.escapeLiteral(password)}`,
-      );
-    }
+    if (password) await setAppPassword(client, password);
   } finally {
     await client.end();
+  }
+}
+
+/**
+ * Roles are cluster-wide, so migrations of two databases at once (parallel test files) can update
+ * the same role row together; Postgres then reports "tuple concurrently updated". Retry briefly.
+ */
+async function setAppPassword(client: pg.Client, password: string): Promise<void> {
+  const statement = `ALTER ROLE orbit_app WITH LOGIN PASSWORD ${client.escapeLiteral(password)}`;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await client.query(statement);
+      return;
+    } catch (error) {
+      const concurrent = /tuple concurrently updated/.test((error as Error).message);
+      if (!concurrent || attempt >= 5) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 50 * attempt));
+    }
   }
 }

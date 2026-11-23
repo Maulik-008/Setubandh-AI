@@ -49,6 +49,17 @@ export async function createTestDatabase(superuserUrl: string): Promise<TestData
       const client = new pg.Client({ connectionString: superuserUrl });
       await client.connect();
       try {
+        // Give connections that are still closing a moment: FORCE kills them mid-close, and the
+        // driver then raises an uncaught "terminating connection" error in the test process.
+        for (let attempt = 0; attempt < 20; attempt++) {
+          try {
+            await client.query(`DROP DATABASE IF EXISTS ${name}`);
+            return;
+          } catch (error) {
+            if ((error as { code?: string }).code !== '55006') throw error; // object_in_use
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
         await client.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
       } finally {
         await client.end();

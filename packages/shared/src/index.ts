@@ -10,3 +10,5 @@ export {
 } from './errors';
 export * from './enums';
 export * from './auth';
+export * from './permissions';
+export * from './workspaces';

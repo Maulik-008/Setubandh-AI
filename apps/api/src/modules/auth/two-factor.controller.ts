@@ -1,3 +1,4 @@
+import { UserScoped } from '../../core/access';
 import { Controller, HttpCode, Post, Req } from '@nestjs/common';
 import {
   passwordConfirmRequestSchema,
@@ -12,6 +13,7 @@ import { TwoFactorService } from './two-factor.service';
 const meta = (req: FastifyRequest) => ({ ip: req.ip, userAgent: req.headers['user-agent'] });
 
 /** The signed-in user's own two-step sign-in settings (user-scoped, no workspace). */
+@UserScoped()
 @Controller('me/2fa')
 export class TwoFactorController {
   constructor(private readonly twoFactor: TwoFactorService) {}

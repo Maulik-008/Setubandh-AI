@@ -8,6 +8,7 @@ import { LoggingModule } from './core/logging';
 import { MailerModule } from './core/mailer';
 import { ValkeyModule } from './core/valkey';
 import { AuthModule } from './modules/auth';
+import { TenancyModule } from './modules/tenancy';
 import { UsersModule } from './modules/users';
 import { ExampleModule } from './modules/example';
 import { HealthModule } from './modules/health';
@@ -22,6 +23,7 @@ import { HealthModule } from './modules/health';
     ValkeyModule,
     MailerModule,
     AuthModule,
+    TenancyModule,
     UsersModule,
     HealthModule,
     ExampleModule,

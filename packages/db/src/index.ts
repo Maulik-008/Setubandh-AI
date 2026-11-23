@@ -7,4 +7,4 @@ export { tenantIsolationSql } from './rls';
 export * from './schema';
 export { seed, DEMO_TENANT_SLUG } from './seed';
 /** Query operators re-exported so apps never depend on drizzle-orm directly (rule 1). */
-export { and, desc, eq, gt, gte, inArray, isNull, lt, or, sql } from 'drizzle-orm';
+export { and, asc, count, desc, eq, gt, gte, inArray, isNull, lt, or, sql } from 'drizzle-orm';

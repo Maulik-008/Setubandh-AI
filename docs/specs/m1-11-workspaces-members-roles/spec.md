@@ -1,7 +1,7 @@
 # M1-11: Workspaces, members, invitations, roles
 
 Ticket: M1-11
-Status: ready-for-agent (plan approved 2026-11-23)
+Status: ready-for-human (implemented 2026-11-23; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §3 and §9, week 2](../../plan/01-mvp-1-unified-inbox.md)
 Requirements: FR-AUTH-06, FR-AUTH-07, §5.1–5.2 (tenant from `X-Workspace-Id`, checked against membership on every request), §6 (permissions), §11.2 (memberships, invitations)
 
@@ -85,3 +85,16 @@ Workspaces with three MVP 1 roles (Owner, Admin, Agent). Members are invited by 
 - The switcher and members screens (M1-13).
 - The tenant isolation suite and append-only audit (M1-12).
 - Email templates (M1-14).
+
+## Implementation notes (2026-11-23)
+
+- Code: `apps/api/src/modules/tenancy` (TenantGuard, workspaces, members, invitations); access decorators `@Public` / `@UserScoped` / `@RequirePermission` in `apps/api/src/core/access.ts`; permissions in `packages/shared/src/permissions.ts`; migration `0004_workspaces_invitations.sql`.
+- Acceptance tests: `apps/api/test/workspaces.int.test.ts` (37 tests on real Postgres and Valkey; the role table alone is 9 endpoints × 3 roles). Rule 3 guard: `apps/api/test/route-permissions.test.ts`, checked by removing a decorator and watching it fail.
+- `@RequirePermission()` with no arguments means "any member of this workspace". A route with no declaration at all is treated as a workspace route (fail closed), and the guard test forbids it anyway.
+- Changing the Owner's role or removing the Owner: an Admin gets `403 FORBIDDEN`; the Owner gets `409 CONFLICT` ("transfer ownership first").
+- Inviting someone who is already a member gets `409 CONFLICT`. A new invite to the same email replaces the open one.
+- `POST /v1/auth/accept-invite` for an email that already has an account gets `400 INVITATION_INVALID` with "sign in to accept".
+- `invitations` stays in platform scope like `memberships` (no RLS), as decided above. It is added to the allowlist in the database isolation guard test with that reason.
+- Two test-infrastructure races surfaced while running the suites in parallel, and both are fixed:
+  - concurrent `ALTER ROLE orbit_app` in `migrate()` now retries;
+  - `TestDatabase.drop()` now waits for closing connections before falling back to `FORCE`.

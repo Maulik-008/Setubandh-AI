@@ -153,5 +153,9 @@ async function expectRlsViolation(promise: Promise<unknown>): Promise<void> {
   expect(cause?.message).toMatch(/row-level security/);
 }
 
-/** Platform-scope tables (requirements §11.2) that reference a tenant but are not RLS-protected. */
-const PLATFORM_TABLES_WITH_TENANT_ID = ['memberships'];
+/**
+ * Platform-scope tables (requirements §11.2) that reference a tenant but are not RLS-protected.
+ * They are read before a workspace is chosen (the switcher, the membership check, accepting an
+ * invite by token), and every query on them names the tenant explicitly (M1-11 spec).
+ */
+const PLATFORM_TABLES_WITH_TENANT_ID = ['memberships', 'invitations'];

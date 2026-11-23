@@ -511,9 +511,9 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-11-workspaces-members-roles/spec.md](../specs/m1-11-workspaces-members-roles/spec.md)
 **Build:** create workspace (cap 3 per user), switcher, invitations (Admin / Agent), accept flow, change role, remove member, transfer ownership, `@RequirePermission` guard, `X-Workspace-Id` tenant guard, setting “Agents can see all conversations”.
 **Acceptance:**
-- [ ] Table-driven test: each role can call exactly the endpoints in Section 3.
-- [ ] Removed member loses access immediately (next request returns `WORKSPACE_NOT_MEMBER`).
-- [ ] A user in two workspaces only sees data of the active one.
+- [x] Table-driven test: each role can call exactly the endpoints in Section 3.
+- [x] Removed member loses access immediately (next request returns `WORKSPACE_NOT_MEMBER`).
+- [x] A user in two workspaces only sees data of the active one.
 
 #### M1-12 Tenant isolation suite and audit log
 **Build:** isolation suite (two seeded tenants, every repository and endpoint asserted); lint rule against raw pool use; tenant and platform audit services with append-only grants.
