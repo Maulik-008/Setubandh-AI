@@ -4,7 +4,11 @@
 
 ## Project status
 
+<<<<<<< HEAD
 **Foundations in progress (M1-01 to M1-04 done).** The pnpm + Turborepo monorepo, strict TypeScript, ESLint module boundaries and the full test harness exist. The local Docker stack and typed config (`packages/env`), the API/worker skeletons (errors, logging, health, OpenAPI, BullMQ) and the database foundation (`packages/db`: Drizzle, `withTenant`, RLS) exist. See `packages/db/README.md` before adding a tenant table. Do not assume a script or folder exists until its ticket is done.
+=======
+**Scaffolded (M1-01, M1-01a, M1-02, M1-05).** The pnpm + Turborepo monorepo, strict TypeScript, ESLint module boundaries and the full test harness exist. The local Docker stack and typed config (`packages/env`, M1-02) exist. The design system (Astryx + Paper & Pastel in `packages/ui`, M1-05) exists; `apps/web` shows its specimen page. NestJS bootstrap and database are M1-03 and M1-04. Do not assume a script or folder exists until its ticket is done.
+>>>>>>> worktree-agent-af864506f7cd7dbb0
 
 ## Read first
 
@@ -12,7 +16,7 @@
 - `docs/plan/01-mvp-1-unified-inbox.md` — **MVP 1 scope only.** Anything not listed there is out of scope for MVP 1, even if `requirements.md` mentions it. If it is needed, add it to the plan file first.
 - `docs/plan/02-mvp-2-ai-answers.md`, `docs/plan/03-later-milestones-m3-m6.md` — later work; do not build ahead.
 - `docs/prototype/setubandh_prototype.html` — interactive UI reference (layout and behaviour, not production code).
-- For any UI work: `.claude/skills/paper-pastel-studio/SKILL.md` and the Astryx agent docs (`npx @astryxdesign/cli docs <topic>`, once installed).
+- For any UI work: `.claude/skills/paper-pastel-studio/SKILL.md` then the "Design system (Astryx)" section below and ADR 0012.
 
 ## Stack (target, per requirements §4.3 and ADR 0011)
 
@@ -22,8 +26,13 @@ AI (MVP 2): Claude API via `@anthropic-ai/sdk`; model IDs come from config, neve
 
 ## Commands
 
+<<<<<<< HEAD
 Available now (M1-01 to M1-04): `pnpm db:migrate` | `pnpm db:seed` | `pnpm env:init` | `pnpm env:check` | `pnpm dev` | `pnpm dev:services` / `:down` / `:reset` | `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check`. How to write each kind of test: `docs/testing.md`.
 Later tickets add: `pnpm ui:audit` (M1-05) | `pnpm ai:evals` (MVP 2).
+=======
+Available now (M1-01 to M1-05): `pnpm env:init` | `pnpm env:check` | `pnpm dev` | `pnpm dev:services` / `:down` / `:reset` | `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check` | `pnpm ui:audit` (contrast.py + audit.py, Python 3). How to write each kind of test: `docs/testing.md`.
+Later tickets add: `pnpm db:migrate` / `pnpm db:seed` (M1-04) | `pnpm ai:evals` (MVP 2).
+>>>>>>> worktree-agent-af864506f7cd7dbb0
 
 ## Non-negotiable rules
 
@@ -74,3 +83,46 @@ Single-context: root `GLOSSARY.md` plus `docs/adr/`. See `docs/agents/domain.md`
 ### Installed skills
 
 Third-party skills and their licences are listed in `.claude/skills/THIRD_PARTY_SKILLS.md`. Stack skills: `nestjs-best-practices`, `postgres-best-practices`, `playwright-cli`, `react-composition-patterns`, `tdd`, `property-based-testing`, `differential-review`, `supply-chain-risk-auditor`. Their "Setubandh AI overrides" notes and this file win over their examples.
+
+## Design system (Astryx) — repo rules
+
+The block after this section is written by `astryx init` (refresh it with `astryx init --agent claude` after an upgrade; do not hand-edit it). Where it disagrees with this repo, these rules win:
+
+- Run the CLI as `pnpm --filter @setubandh/ui exec astryx <cmd>` (it is pinned with Core at 0.7.17; all `@astryxdesign/*` versions stay exact and equal).
+- **Tailwind v4 is set up** (Astryx bridge + cascade layers in `packages/ui/styles/globals.css`): use utilities for layout. Colours, radius and shadows come from the theme, never page styles. Extra identity utilities: `bg-cta`, `bg-surface-1..5`, `bg-tint-{hue}`, `bg-chip-{hue}/15`, `text-chip-{hue}-ink`, `bg-on-tint`; take hue classes from `CATEGORY_CLASSES` (never concatenate). `text-primary` = primary text, `text-accent` = cobalt.
+- Theme: edit values in `packages/ui/src/theme/tokens.ts` and mappings in `paperPastelTheme.ts`, then `pnpm --filter @setubandh/ui theme:build`. Do not use the experimental theme editor or `theme add`; ADR 0012 has the token and button-variant mapping.
+- Apps import `@setubandh/ui/globals.css` first in `main.tsx` and wrap in `<AppTheme>` (Astryx `<Theme>`); the mode switch is `<ColorModeToggle>`.
+- Button: `variant="primary"` is the ink pill, one per view; default (secondary) is the outline pill; `destructive` is an outline too. Icons: `<LineIcon icon={...} />` (Lucide, stroke 1.75).
+- Before finishing UI work: `pnpm ui:audit`, axe via `expectAccessible` in both modes, and look at the screenshots.
+
+<!-- ASTRYX:START -->
+Astryx v0.7.17 · 174 components
+CLI: run every command as `pnpm dlx @astryxdesign/cli@0.7.17 <cmd>` (shown below as `astryx ...`).
+
+SETUP (once, in app entry e.g. main.tsx) — without these, components render unstyled:
+  import "@astryxdesign/core/reset.css";
+  import "@astryxdesign/core/astryx.css";
+
+WORKFLOW — start every page from a template, never from scratch:
+1. `astryx build "<idea>"` — names the template to scaffold from and the parts it lacks.
+2. `astryx template <name> <path>` — scaffold it; keep its frame, gap and padding; replace the content.
+3. `astryx component <Name>` to read props before using one; `astryx template <Block>` prints a block example to read for a part it lacks. Astryx names differ from other libraries: buttons, badges, tokens and tabs take their text in `label` (Text, Heading and Link take children), booleans start with `is` or `has` (`isOpen`, `isDisabled`), and every input takes `value` and `onChange`.
+Changing an existing page? Keep it: skip step 2 and add components inside its sections; read a block example when it helps.
+
+RULES:
+- No <div> — components handle all layout and spacing.
+- Read `astryx docs layout` before changing a template's frame.
+- Dense data = rows (Table, List/Item), not Card-wrapped lists. Badge = counts only.
+- Style with component props first, then tokens (var(--color-*|--spacing-*|--radius-*)). No raw hex/px. No StyleX/Tailwind compiler here — don't use xstyle/utility classes directly. Some templates use StyleX and need a compiler plugin; see `astryx docs styling-overview`.
+- THEMES: palettes and custom colors go through the theme, never :root overrides; so does a denser or roomier app (`editor set <name> spacing tight`), never gap and padding changes page by page. A change to one kind of part (the sidebar, its selected item, the gaps in a form) is a theme change too, not props on one page: `editor how "<ask>"` names the `set … --on <part>` line. No app yet: `astryx experimental theme preview app <dir>` makes a starter app that shows the theme. To make or change a theme (colors, fonts, corners, spacing, a look from a picture), prefer the experimental theme editor over hand-written theme files: `astryx experimental theme editor new <name> --like neutral`, then `editor set <name> <thing> <value>` or `editor how "<what you want>"`; wire it with `astryx theme add <name>`; after each change look at it with `astryx experimental theme editor show <name> --png` (takes pictures of real components) and open the PNGs it writes; a theme change is not done until you have looked at the pictures. In code, extend an imported theme to customize it; `theme eject <slug>` only forks source. See `astryx docs theme`.
+- SELF-CHECK: re-read the file; replace any raw <div>/<span>, imported .css/@apply, or hardcoded #hex/px with the component or a token.
+
+`astryx help` lists every command. Key ones beyond the workflow:
+  search "<query>"   find any component / hook / doc / template
+  discover <words>   integrations you could add
+  docs <topic>       getting-started, principles, tokens, theme … (`astryx docs` lists all)
+  docs cli           commands and API reference
+  docs authoring     build an integration package, and every field it holds
+  upgrade --from <old version> --apply   run after a dependency bump
+To remove this block, run `astryx init --remove-agents`, which removes it from the agent files at the project root and in the folder you run it in; from any other file it leaves, delete everything from ASTRYX:START to ASTRYX:END.
+<!-- ASTRYX:END -->

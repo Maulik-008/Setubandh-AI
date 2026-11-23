@@ -1,4 +1,8 @@
 {
-  "extends": "@setubandh/config/tsconfig/node.json",
+  "extends": "@setubandh/config/tsconfig/react.json",
+  "compilerOptions": {
+    "types": ["vite/client", "node"],
+    "allowImportingTsExtensions": true
+  },
   "include": ["src", "test", "*.config.ts"]
 }

@@ -23,7 +23,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:migrate": "pnpm --filter @setubandh/db db:migrate",
-    "db:seed": "pnpm --filter @setubandh/db db:seed"
+    "db:seed": "pnpm --filter @setubandh/db db:seed",
+    "ui:audit": "node scripts/ui-audit.mjs"
   },
   "devDependencies": {
     "@swc/cli": "0.8.2",

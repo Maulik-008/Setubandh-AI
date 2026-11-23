@@ -45,7 +45,7 @@ export function spawnApp(options: {
   let err = '';
   const child = spawn(
     process.execPath,
-    ['--conditions=source', '--import', options.swcRegister, options.entry],
+    ['--conditions=@setubandh/source', '--import', options.swcRegister, options.entry],
     {
       cwd: options.cwd,
       env: {

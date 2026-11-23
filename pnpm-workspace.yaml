@@ -9,6 +9,10 @@ allowBuilds:
   msgpackr-extract: true
   # Not needed (telemetry or optional native add-ons with JS fallbacks):
   '@scarf/scarf': false
+  # Astryx postinstall scripts only print an "run astryx init" nudge; init is done (M1-05).
+  '@astryxdesign/cli': false
+  '@astryxdesign/core': false
+  # Optional native speed-ups pulled in by Testcontainers; the pure-JS fallbacks are enough.
   cpu-features: false
   protobufjs: false
   ssh2: false

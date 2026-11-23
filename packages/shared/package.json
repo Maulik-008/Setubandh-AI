@@ -6,7 +6,7 @@
   "description": "Zod schemas, DTO types, enums, permission constants and error codes shared by API and UI.",
   "exports": {
     ".": {
-      "source": "./src/index.ts",
+      "@setubandh/source": "./src/index.ts",
       "default": "./dist/index.js"
     }
   },

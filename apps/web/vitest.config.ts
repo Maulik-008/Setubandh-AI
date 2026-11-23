@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
 import { msw } from 'msw/vite';
@@ -12,7 +13,7 @@ export default defineConfig({
     projects: [
       unitProject({ plugins: [react()] }),
       {
-        plugins: [react(), msw({ mode: 'worker-only' })],
+        plugins: [react(), tailwindcss(), msw({ mode: 'worker-only' })],
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.tsx', 'test/**/*.browser.test.tsx'],

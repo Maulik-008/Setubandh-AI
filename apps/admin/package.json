@@ -13,14 +13,20 @@
     "test": "vitest run --project unit --passWithNoTests"
   },
   "dependencies": {
+    "@astryxdesign/core": "0.7.17",
+    "@setubandh/ui": "workspace:*",
+    "@stylexjs/stylex": "0.19.2",
+    "lucide-react": "1.77.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@setubandh/config": "workspace:*",
+    "@tailwindcss/vite": "4.3.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "tailwindcss": "4.3.5",
     "vite": "^8.3.8"
   }
 }

@@ -1,10 +1,11 @@
 // Shared Vitest project presets. Each workspace composes the projects it needs.
-// Workspace packages export TypeScript under the `source` condition (dist under `default`);
+// Workspace packages export TypeScript under the `@setubandh/source` condition (namespaced so it
+// never picks up other libraries' `source` exports) (dist under `default`);
 // tests always run against source.
-const conditions = ['source', 'node', 'development|production'];
+const conditions = ['@setubandh/source', 'node', 'development|production'];
 const resolve = { conditions };
 // Node-side tests resolve through Vite's server (SSR) resolver, which has its own conditions.
-const ssr = { resolve: { conditions, externalConditions: ['source'] } };
+const ssr = { resolve: { conditions, externalConditions: ['@setubandh/source'] } };
 
 // Fast unit tests: no Docker, no browser. Excludes integration (.int.test) and browser (.browser.test) files.
 export function unitProject(extra = {}) {
