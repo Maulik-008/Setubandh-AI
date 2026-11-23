@@ -6,6 +6,8 @@ const conditions = ['@setubandh/source', 'node', 'development|production'];
 const resolve = { conditions };
 // Node-side tests resolve through Vite's server (SSR) resolver, which has its own conditions.
 const ssr = { resolve: { conditions, externalConditions: ['@setubandh/source'] } };
+// Tests must never read a developer's own .env: they would pass locally and fail in CI.
+const env = { SETUBANDH_ENV_FILE: '/nonexistent/setubandh-tests-use-explicit-config.env' };
 
 // Fast unit tests: no Docker, no browser. Excludes integration (.int.test) and browser (.browser.test) files.
 export function unitProject(extra = {}) {
@@ -15,6 +17,7 @@ export function unitProject(extra = {}) {
     ssr: { ...ssr, ...extra.ssr },
     test: {
       name: 'unit',
+      env: { ...env, ...extra.test?.env },
       include: ['test/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
       exclude: ['**/*.int.test.ts', '**/*.browser.test.{ts,tsx}', '**/node_modules/**', 'e2e/**'],
       environment: 'node',
@@ -31,6 +34,7 @@ export function integrationProject(extra = {}) {
     ssr: { ...ssr, ...extra.ssr },
     test: {
       name: 'integration',
+      env: { ...env, ...extra.test?.env },
       include: ['test/**/*.int.test.ts', 'src/**/*.int.test.ts'],
       environment: 'node',
       testTimeout: 60_000,
