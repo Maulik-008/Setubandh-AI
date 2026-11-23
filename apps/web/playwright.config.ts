@@ -40,7 +40,9 @@ export default defineConfig({
   updateSnapshots: process.env.E2E_UPDATE_SNAPSHOTS === 'missing' ? 'missing' : 'none',
   testDir: './e2e',
   outputDir: './test-results',
-  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{testFilePath}/{arg}{ext}',
+  // Baselines are per OS: CI (linux) owns the committed ones; other machines write their own.
+  snapshotPathTemplate:
+    '{testDir}/__screenshots__/{platform}/{projectName}/{testFilePath}/{arg}{ext}',
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
