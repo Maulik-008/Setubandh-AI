@@ -51,9 +51,11 @@ services:
       timeout: 3s
       retries: 60
 
-  # One-shot: create the app bucket (idempotent), then exit.
+  # One-shot: create the app bucket (idempotent), then exit. Run with `compose run --rm s3-init`
+  # (pnpm dev:services does); the profile keeps `up --wait` from treating its exit as a failure.
   s3-init:
     image: chrislusf/seaweedfs:4.54
+    profiles: ['init']
     depends_on:
       s3:
         condition: service_healthy

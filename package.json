@@ -7,8 +7,8 @@
     "node": ">=26.0.0 <27"
   },
   "scripts": {
-    "dev": "pnpm env:check && pnpm dev:services && turbo run dev",
-    "dev:services": "docker compose --env-file .env -f infra/docker/docker-compose.dev.yml up -d --wait",
+    "dev": "pnpm env:check && pnpm dev:services && pnpm db:migrate && turbo run dev",
+    "dev:services": "docker compose --env-file .env -f infra/docker/docker-compose.dev.yml up -d --wait && docker compose --env-file .env -f infra/docker/docker-compose.dev.yml run --rm s3-init",
     "dev:services:down": "docker compose --env-file .env -f infra/docker/docker-compose.dev.yml down",
     "dev:services:reset": "node scripts/dev-services-reset.mjs",
     "env:init": "node scripts/env-init.mjs",
@@ -21,7 +21,9 @@
     "test:browser": "turbo run test:browser",
     "test:e2e": "turbo run test:e2e",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:migrate": "pnpm --filter @setubandh/db db:migrate",
+    "db:seed": "pnpm --filter @setubandh/db db:seed"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

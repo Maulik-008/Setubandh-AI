@@ -135,6 +135,15 @@ export function createConfig({ tsconfigRootDir, react = false, ignores = [] }) {
           {
             paths: [
               {
+                name: 'pg',
+                message:
+                  'Rule 1: no raw database access outside packages/db. Use db.withTenant() or db.platform.',
+              },
+              {
+                name: 'drizzle-orm/node-postgres',
+                message: 'Rule 1: create database clients only in packages/db (createDatabase).',
+              },
+              {
                 name: 'zod',
                 message:
                   "Import { z } from '@setubandh/shared' (one Zod instance, extended for OpenAPI).",

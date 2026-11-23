@@ -455,10 +455,11 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [x] Every error response has `code`, `message`, `requestId`.
 
 #### M1-04 Database foundation with row-level security
+**Spec:** [docs/specs/m1-04-database-foundation/spec.md](../specs/m1-04-database-foundation/spec.md)
 **Build:** Drizzle + migrations; roles `orbit_app` (NOBYPASSRLS) and `orbit_admin`; `withTenant(tenantId, userId, fn)` helper using `SET LOCAL`; RLS policy helper; first tables `tenants`, `users`, `memberships`.
 **Acceptance:**
-- [ ] A query on a tenant table outside `withTenant` returns zero rows.
-- [ ] Inserting a row with another tenant’s id inside `withTenant` fails.
+- [x] A query on a tenant table outside `withTenant` returns zero rows.
+- [x] Inserting a row with another tenant’s id inside `withTenant` fails.
 
 #### M1-05 Design system spike (Astryx + Paper & Pastel)
 **Build:** `apps/web` and `apps/admin` on React 19 + Vite 8; install `@astryxdesign/core`, `@stylexjs/stylex`, theme, CLI; `npx @astryxdesign/cli init`; Paper & Pastel theme via `defineTheme`; cascade layers and Tailwind v4 bridge as requirements §13.3.2; Geist; Lucide; light / dark toggle through Astryx `Theme`; demo page with button, input, select, card, table, dialog, badge, toast.

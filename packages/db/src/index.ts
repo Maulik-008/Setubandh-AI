@@ -1,3 +1,8 @@
-/** @setubandh/db: Drizzle schema, migrations, RLS policies and the tenant-scoped db helper (M1-04). */
+/** @setubandh/db: Drizzle schema, migrations, RLS policies and the tenant-scoped db helper. */
 export const PACKAGE_NAME = '@setubandh/db';
 export { createDatabaseHealth, type DatabaseHealth } from './health';
+export { createDatabase, type Database, type PlatformDb, type TenantTx } from './client';
+export { migrate, MIGRATIONS_FOLDER } from './migrate';
+export { tenantIsolationSql } from './rls';
+export * from './schema';
+export { seed, DEMO_TENANT_SLUG } from './seed';

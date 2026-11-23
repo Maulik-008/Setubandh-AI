@@ -37,7 +37,7 @@ First time on a machine: `pnpm install`, then `pnpm --filter @setubandh/web exec
 ## Writing tests
 
 - **Test behaviour, not internals:** HTTP responses, rows the database returns, what a user sees. Find elements by role and accessible name (`getByRole`), not CSS classes.
-- **Integration tests** read `inject('postgresUrl')` and `inject('valkeyUrl')`. The containers are shared by the whole run, so each test creates its own data (unique IDs) and does not depend on order. From M1-04, database tests go through `db.withTenant()` and the tenant isolation suite.
+- **Integration tests** read `inject('postgresUrl')` and `inject('valkeyUrl')`. For database tests, `createTestDatabase(inject('postgresUrl'))` gives each test file its own empty database; run `migrate({ adminUrl, appUrl })` and connect with `createDatabase(testDb.appUrl)` (the real `orbit_app` role, so RLS applies). The containers are shared by the whole run, so each test creates its own data (unique IDs) and does not depend on order. From M1-04, database tests go through `db.withTenant()` and the tenant isolation suite.
 - **API tests:** `const app = await createTestApp({ imports: [SomeModule] })`, then `await app.inject({ method, url, payload })`, and `await app.close()` in `afterAll`. Override providers with `createTestApp(meta, { override: (b) => b.overrideProvider(X).useValue(fake) })`.
 - **Component tests:** add API responses per test with `worker.use(http.get(url, () => HttpResponse.json(...)))`. Unhandled requests fail the test. Use `userEvent` from `vitest/browser` for real clicks and keys.
 - **E2E tests:**

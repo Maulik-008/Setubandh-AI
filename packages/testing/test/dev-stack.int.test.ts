@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   CreateBucketCommand,
@@ -22,6 +23,12 @@ const bucket = 'setubandh-test';
 
 describe('local dev stack (infra/docker/docker-compose.dev.yml)', () => {
   let stack: StartedDockerComposeEnvironment;
+  const projectName = `setubandh-test-${Date.now()}`;
+  const composeEnv = {
+    S3_ACCESS_KEY: credentials.accessKeyId,
+    S3_SECRET_KEY: credentials.secretAccessKey,
+    S3_BUCKET: bucket,
+  };
   const endpoint = (service: string, port: number) => {
     const container = stack.getContainer(`${service}-1`);
     return { host: container.getHost(), port: container.getMappedPort(port) };
@@ -32,12 +39,9 @@ describe('local dev stack (infra/docker/docker-compose.dev.yml)', () => {
       'docker-compose.dev.yml',
       'docker-compose.test.yml',
     ])
-      .withProjectName(`setubandh-test-${Date.now()}`)
-      .withEnvironment({
-        S3_ACCESS_KEY: credentials.accessKeyId,
-        S3_SECRET_KEY: credentials.secretAccessKey,
-        S3_BUCKET: bucket,
-      })
+      .withProjectName(projectName)
+      .withEnvironment(composeEnv)
+      .withProfiles('init')
       .withWaitStrategy('s3-init-1', Wait.forOneShotStartup())
       .withDefaultWaitStrategy(Wait.forHealthCheck())
       .withStartupTimeout(180_000)
@@ -98,6 +102,27 @@ describe('local dev stack (infra/docker/docker-compose.dev.yml)', () => {
       new GetObjectCommand({ Bucket: bucket, Key: 'tenants/t1/hello.txt' }),
     );
     expect(await object.Body?.transformToString()).toBe('hi');
+  });
+
+  it('creates the bucket idempotently (second start of the stack succeeds)', () => {
+    const result = spawnSync(
+      'docker',
+      [
+        'compose',
+        '-p',
+        projectName,
+        '-f',
+        'docker-compose.dev.yml',
+        '-f',
+        'docker-compose.test.yml',
+        'run',
+        '--rm',
+        's3-init',
+      ],
+      { cwd: composeDir, env: { ...process.env, ...composeEnv }, encoding: 'utf8' },
+    );
+    expect(result.stderr + result.stdout).toContain(`bucket ${bucket} ready`);
+    expect(result.status).toBe(0);
   });
 
   it('rejects S3 requests with wrong credentials', async () => {

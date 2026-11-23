@@ -4,7 +4,7 @@
 
 ## Project status
 
-**Scaffolded (M1-01, M1-01a, M1-02).** The pnpm + Turborepo monorepo, strict TypeScript, ESLint module boundaries and the full test harness exist. The local Docker stack and typed config (`packages/env`, M1-02) exist. Apps are still thin: NestJS bootstrap, database and design system are M1-03 to M1-05. Do not assume a script or folder exists until its ticket is done.
+**Foundations in progress (M1-01 to M1-04 done).** The pnpm + Turborepo monorepo, strict TypeScript, ESLint module boundaries and the full test harness exist. The local Docker stack and typed config (`packages/env`), the API/worker skeletons (errors, logging, health, OpenAPI, BullMQ) and the database foundation (`packages/db`: Drizzle, `withTenant`, RLS) exist. See `packages/db/README.md` before adding a tenant table. Do not assume a script or folder exists until its ticket is done.
 
 ## Read first
 
@@ -22,8 +22,8 @@ AI (MVP 2): Claude API via `@anthropic-ai/sdk`; model IDs come from config, neve
 
 ## Commands
 
-Available now (M1-01 to M1-02): `pnpm env:init` | `pnpm env:check` | `pnpm dev` | `pnpm dev:services` / `:down` / `:reset` | `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check`. How to write each kind of test: `docs/testing.md`.
-Later tickets add: `pnpm db:migrate` / `pnpm db:seed` (M1-04) | `pnpm ui:audit` (M1-05) | `pnpm ai:evals` (MVP 2).
+Available now (M1-01 to M1-04): `pnpm db:migrate` | `pnpm db:seed` | `pnpm env:init` | `pnpm env:check` | `pnpm dev` | `pnpm dev:services` / `:down` / `:reset` | `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check`. How to write each kind of test: `docs/testing.md`.
+Later tickets add: `pnpm ui:audit` (M1-05) | `pnpm ai:evals` (MVP 2).
 
 ## Non-negotiable rules
 

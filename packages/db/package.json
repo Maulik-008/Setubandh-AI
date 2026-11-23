@@ -10,13 +10,24 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --project unit"
+    "test": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node --import @swc-node/register/esm-register src/cli/migrate.ts",
+    "db:seed": "node --import @swc-node/register/esm-register src/cli/seed.ts"
   },
   "devDependencies": {
     "@setubandh/config": "workspace:*",
-    "@types/pg": "^8.23.1"
+    "@setubandh/env": "workspace:*",
+    "@setubandh/testing": "workspace:*",
+    "@swc-node/register": "^1.12.1",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "0.31.11"
   },
   "dependencies": {
-    "pg": "^8.23.1"
+    "@setubandh/shared": "workspace:*",
+    "drizzle-orm": "0.45.4",
+    "pg": "^8.23.1",
+    "uuidv7": "^1.2.1"
   }
 }
