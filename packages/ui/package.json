@@ -3,16 +3,47 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Astryx theme (Paper & Pastel) and shared composed components (M1-05).",
+  "description": "Astryx theme (Paper & Pastel), global styles and shared composed components.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./tokens": "./src/theme/tokens.ts",
+    "./globals.css": "./styles/globals.css"
   },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --project unit"
+    "test": "vitest run --project unit",
+    "test:browser": "vitest run --project browser",
+    "theme:build": "astryx theme build src/theme/paperPastelTheme.ts && node scripts/build-extras.mjs",
+    "theme:check": "astryx theme build src/theme/paperPastelTheme.ts --check"
+  },
+  "dependencies": {
+    "@astryxdesign/core": "0.7.17",
+    "@astryxdesign/theme-neutral": "0.7.17",
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource-variable/geist-mono": "5.3.0",
+    "@stylexjs/stylex": "0.19.2",
+    "lucide-react": "1.77.0",
+    "tailwindcss": "4.3.5"
+  },
+  "peerDependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@setubandh/config": "workspace:*"
+    "@astryxdesign/cli": "0.7.17",
+    "@setubandh/config": "workspace:*",
+    "@tailwindcss/vite": "4.3.5",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/browser-playwright": "5.1.1",
+    "playwright": "1.65.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "vite": "^8.3.8",
+    "vitest": "5.1.1"
   }
 }

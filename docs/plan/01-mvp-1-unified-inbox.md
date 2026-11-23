@@ -462,10 +462,12 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 #### M1-05 Design system spike (Astryx + Paper & Pastel)
 **Build:** `apps/web` and `apps/admin` on React 19 + Vite 8; install `@astryxdesign/core`, `@stylexjs/stylex`, theme, CLI; `npx @astryxdesign/cli init`; Paper & Pastel theme via `defineTheme`; cascade layers and Tailwind v4 bridge as requirements §13.3.2; Geist; Lucide; light / dark toggle through Astryx `Theme`; demo page with button, input, select, card, table, dialog, badge, toast.
 **Acceptance:**
-- [ ] Both modes match the prototype’s look (white paper / ink, one ink button, pastel chips).
-- [ ] Tailwind utilities override Astryx component defaults (layer order proven).
-- [ ] Paper & Pastel `contrast.py` passes; `audit.py` 0 errors; axe 0 serious issues.
-- [ ] Decision note in `docs/adr/` confirming token names and button variant mapping (answers requirements Q-12).
+- [x] Both modes match the prototype’s look (white paper / ink, one ink button, pastel chips).
+- [x] Tailwind utilities override Astryx component defaults (layer order proven).
+- [x] Paper & Pastel `contrast.py` passes; `audit.py` 0 errors; axe 0 serious issues.
+- [x] Decision note in `docs/adr/` confirming token names and button variant mapping (answers requirements Q-12).
+
+**Spec:** [docs/specs/m1-05-design-system/spec.md](../specs/m1-05-design-system/spec.md) · **Decision:** [ADR 0012](../adr/0012-astryx-paper-pastel-theme.md) (Vite 8 works; no Vite 7 fallback)
 
 #### M1-06 CI pipeline and Docker images
 **Build:** GitHub Actions stages: install, lint, typecheck, unit, integration (Testcontainers), UI audit, build, E2E, Docker images tagged with commit SHA and pushed to GitHub Container Registry; staging deploy job present but disabled until a staging server exists (Q-08).
@@ -476,7 +478,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 #### M1-07 Claude Code setup
 **Build:** root `CLAUDE.md` (requirements §17.2, plus “MVP 1 scope only: see docs/plan/01-mvp-1-unified-inbox.md”), `.claude/skills/paper-pastel-studio`, merged Astryx agent docs, `.claude/commands/ticket.md`, `docs/adr/`, `docs/runbooks/`.
 **Acceptance:**
-- [ ] `/ticket M1-09` loads the ticket and asks for a plan.
+- [x] `/ticket M1-09` loads the ticket and asks for a plan.
 
 #### M1-08 Meta platform setup (non-code, weeks 1 to 10)
 **Do:** everything in Section 5 in order.

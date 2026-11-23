@@ -1998,7 +1998,7 @@ WhatsApp message fees per message, by country and category, billed to the tenant
 | Q-09 | Validate pricing with 5 to 10 prospects before launch | Stakeholder | P8-01 |
 | Q-10 | UI languages beyond English for v1.1 (Hindi, Gujarati?) | Stakeholder | v1.1 |
 | Q-11 | Any customer requirement for India-only data residency (affects Claude API use) | Legal | Sales to regulated sectors |
-| Q-12 | Astryx theme override approach confirmed by the P0-05 spike (token names, button variant theming) | Engineering | All UI tickets after P0-05 |
+| Q-12 | Astryx theme override approach confirmed by the P0-05 spike (token names, button variant theming). **Answered 2026-11-23 by M1-05: [ADR 0012](adr/0012-astryx-paper-pastel-theme.md)** | Engineering | All UI tickets after P0-05 |
 
 ---
 

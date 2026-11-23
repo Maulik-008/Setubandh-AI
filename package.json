@@ -21,7 +21,8 @@
     "test:browser": "turbo run test:browser",
     "test:e2e": "turbo run test:e2e",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "ui:audit": "node scripts/ui-audit.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

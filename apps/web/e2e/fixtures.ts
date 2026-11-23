@@ -8,6 +8,8 @@ interface Fixtures {
   expectAccessible: (options?: { include?: string; exclude?: string[] }) => Promise<void>;
   /** Mock the API health check so pages render deterministically without a backend. */
   mockApi: (page?: Page) => Promise<void>;
+  /** What the browser computes for a CSS colour (e.g. `hsl(222 20% 12%)`), to compare with computed styles. */
+  computedColor: (css: string) => Promise<string>;
 }
 
 /**
@@ -29,7 +31,13 @@ export const test = base.extend<Fixtures>({
       const { violations } = await builder.analyze();
       const blocking = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
       expect(
-        blocking.map((v) => `${v.impact}: ${v.id} (${v.nodes.length} nodes) ${v.helpUrl}`),
+        blocking.map(
+          (v) =>
+            `${v.impact}: ${v.id} (${v.nodes.length} nodes: ${v.nodes
+              .slice(0, 3)
+              .map((n) => n.target.join(' '))
+              .join(' | ')}) ${v.helpUrl}`,
+        ),
         'serious or critical accessibility violations',
       ).toEqual([]);
     });
@@ -40,6 +48,18 @@ export const test = base.extend<Fixtures>({
         route.fulfill({ status: 200, json: { status: 'ok' } }),
       );
     });
+  },
+  computedColor: async ({ page }, use) => {
+    await use((css) =>
+      page.evaluate((value) => {
+        const probe = document.createElement('span');
+        probe.style.color = value;
+        document.body.append(probe);
+        const color = getComputedStyle(probe).color;
+        probe.remove();
+        return color;
+      }, css),
+    );
   },
 });
 

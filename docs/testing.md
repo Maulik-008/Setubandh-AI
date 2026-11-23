@@ -31,6 +31,8 @@ First time on a machine: `pnpm install`, then `pnpm --filter @setubandh/web exec
 | API (NestJS on Fastify) | unit project, uses `createTestApp` from `@setubandh/testing` | `apps/api/test/http.test.ts` |
 | Integration | `*.int.test.ts`, project `integration`, `globalSetup` from `@setubandh/testing/global-setup` | `packages/testing/test/infra.int.test.ts` |
 | Browser component | `src/**/*.browser.test.tsx` | `apps/web/src/components/ApiStatus.browser.test.tsx` |
+| Browser, shared UI and styles | `packages/ui/{src,test}/**/*.browser.test.tsx`, loads the real `globals.css` | `packages/ui/test/layers.browser.test.tsx` |
+| Design-system gates | `pnpm ui:audit` (contrast.py on the theme tokens, audit.py on UI sources); `packages/ui/test/*.test.ts` guard token drift and stale theme builds | `packages/ui/test/theme.test.ts` |
 | End-to-end | `apps/web/e2e/*.spec.ts`, import `test`/`expect` from `./fixtures` | `apps/web/e2e/shell.spec.ts` |
 | Lint rules | `packages/config/test/*.test.ts` with fixture trees | `packages/config/test/boundaries.test.ts` |
 

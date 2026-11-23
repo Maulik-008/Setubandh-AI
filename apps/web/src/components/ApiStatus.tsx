@@ -1,3 +1,6 @@
+import { Banner } from '@astryxdesign/core/Banner';
+import { StatusDot } from '@astryxdesign/core/StatusDot';
+import { Text } from '@astryxdesign/core/Text';
 import { useEffect, useState } from 'react';
 
 type Status = { state: 'loading' } | { state: 'ok' } | { state: 'error' };
@@ -19,16 +22,29 @@ export function ApiStatus() {
     return () => controller.abort();
   }, []);
 
-  if (status.state === 'loading') return <p aria-live="polite">Checking the API…</p>;
-  if (status.state === 'ok')
+  if (status.state === 'error')
     return (
-      <p className="status-ok" aria-live="polite">
-        API is reachable.
-      </p>
+      <Banner
+        status="error"
+        role="alert"
+        title="The API is not reachable right now."
+        description="Messages may be delayed; try again in a minute."
+      />
     );
+
   return (
-    <p className="status-error" role="alert">
-      The API is not reachable right now. Messages may be delayed; try again in a minute.
+    <p aria-live="polite" className="inline-flex items-center gap-2">
+      {status.state === 'ok' ? (
+        <>
+          <StatusDot variant="success" label="Online" />
+          <Text color="secondary">API is reachable.</Text>
+        </>
+      ) : (
+        <>
+          <StatusDot variant="neutral" label="Checking" isPulsing />
+          <Text color="secondary">Checking the API…</Text>
+        </>
+      )}
     </p>
   );
 }

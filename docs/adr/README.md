@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-One file per new decision, named `NNNN-short-title.md` (next number: `0012`). Each record states context, decision, alternatives considered, and consequences. Update the docs first when a decision changes, then the code.
+One file per new decision, named `NNNN-short-title.md` (next number: `0013`). Each record states context, decision, alternatives considered, and consequences. Update the docs first when a decision changes, then the code.
 
 ## Settled decisions (ADR-01 to ADR-10)
 
@@ -24,6 +24,7 @@ These are recorded in [requirements §4.4](../requirements.md) and must not be r
 | ID | Decision |
 |---|---|
 | [0011](0011-backend-stack-refresh.md) | Backend stack refresh: Node 26, NestJS 12, PostgreSQL 18, Valkey 8.1 + BullMQ v6 OSS, Cloudflare R2, Drizzle 0.45 pinned, 1 API + 1 worker at launch |
+| [0012](0012-astryx-paper-pastel-theme.md) | Astryx 0.7.17 on Vite 8 with a built Paper & Pastel theme: confirmed token names and button variant mapping (answers Q-12) |
 
 ## Template
 
