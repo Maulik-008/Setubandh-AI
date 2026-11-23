@@ -3,6 +3,9 @@ import {
   emailOnlyRequestSchema,
   loginRequestSchema,
   resetPasswordRequestSchema,
+  twoFactorLoginRequestSchema,
+  type MfaChallengeResponse,
+  type TwoFactorLoginRequest,
   signupRequestSchema,
   verifyEmailRequestSchema,
   type LoginRequest,
@@ -50,8 +53,19 @@ export class AuthController {
     @ZodBody(loginRequestSchema) body: LoginRequest,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<SessionResponse | MfaChallengeResponse> {
+    const result = await this.auth.login(body, meta(req));
+    return 'challenge' in result ? result.challenge : this.withCookie(reply, result);
+  }
+
+  @Post('login/2fa')
+  @HttpCode(200)
+  async loginSecondFactor(
+    @ZodBody(twoFactorLoginRequestSchema) body: TwoFactorLoginRequest,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<SessionResponse> {
-    return this.withCookie(reply, await this.auth.login(body, meta(req)));
+    return this.withCookie(reply, await this.auth.loginWithSecondFactor(body, meta(req)));
   }
 
   @Post('refresh')

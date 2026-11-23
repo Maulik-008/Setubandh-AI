@@ -2,6 +2,12 @@ import {
   acceptedResponseSchema,
   emailOnlyRequestSchema,
   loginRequestSchema,
+  mfaChallengeResponseSchema,
+  passwordConfirmRequestSchema,
+  recoveryCodesResponseSchema,
+  twoFactorEnableRequestSchema,
+  twoFactorLoginRequestSchema,
+  twoFactorSetupResponseSchema,
   resetPasswordRequestSchema,
   sessionResponseSchema,
   signupRequestSchema,
@@ -29,7 +35,12 @@ registerRoute({
   tags: ['auth'],
   summary: 'Sign in; sets the sb_refresh cookie (httpOnly, SameSite=Lax, path /v1/auth)',
   request: body(loginRequestSchema),
-  responses: { 200: { description: 'Signed in', ...json(sessionResponseSchema) } },
+  responses: {
+    200: {
+      description: 'Signed in, or a second factor is needed',
+      ...json(z.union([sessionResponseSchema, mfaChallengeResponseSchema])),
+    },
+  },
 });
 registerRoute({
   method: 'post',
@@ -81,4 +92,35 @@ registerRoute({
   responses: {
     200: { description: 'Password changed', ...json(z.object({ status: z.literal('reset') })) },
   },
+});
+registerRoute({
+  method: 'post',
+  path: '/v1/auth/login/2fa',
+  tags: ['auth'],
+  summary: 'Second step: authenticator code or recovery code (challenge is single use, 5 min)',
+  request: body(twoFactorLoginRequestSchema),
+  responses: { 200: { description: 'Signed in', ...json(sessionResponseSchema) } },
+});
+registerRoute({
+  method: 'post',
+  path: '/v1/me/2fa/setup',
+  tags: ['two-factor'],
+  summary: 'Start two-step setup: secret, otpauth URI and QR (SVG)',
+  responses: { 200: { description: 'Pending secret', ...json(twoFactorSetupResponseSchema) } },
+});
+registerRoute({
+  method: 'post',
+  path: '/v1/me/2fa/enable',
+  tags: ['two-factor'],
+  summary: 'Confirm a code and turn two-step sign-in on; returns 10 recovery codes once',
+  request: body(twoFactorEnableRequestSchema),
+  responses: { 200: { description: 'Enabled', ...json(recoveryCodesResponseSchema) } },
+});
+registerRoute({
+  method: 'post',
+  path: '/v1/me/2fa/disable',
+  tags: ['two-factor'],
+  summary: 'Turn two-step sign-in off (needs the password)',
+  request: body(passwordConfirmRequestSchema),
+  responses: { 204: { description: 'Disabled' } },
 });

@@ -505,7 +505,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-10-two-step-sign-in/spec.md](../specs/m1-10-two-step-sign-in/spec.md)
 **Build:** TOTP setup with QR, verify, 10 recovery codes, disable with password.
 **Acceptance:**
-- [ ] Login asks for the code when enabled; a recovery code works once.
+- [x] Login asks for the code when enabled; a recovery code works once.
 
 #### M1-11 Workspaces, members, invitations, roles
 **Spec:** [docs/specs/m1-11-workspaces-members-roles/spec.md](../specs/m1-11-workspaces-members-roles/spec.md)

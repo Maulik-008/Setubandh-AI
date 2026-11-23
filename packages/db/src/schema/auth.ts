@@ -18,6 +18,9 @@ export const SECURITY_EVENT_TYPES = [
   'email_verified',
   'password_reset_requested',
   'password_reset',
+  'two_factor_enabled',
+  'two_factor_disabled',
+  'recovery_code_used',
 ] as const;
 export type SecurityEventType = (typeof SECURITY_EVENT_TYPES)[number];
 
@@ -82,4 +85,19 @@ export const securityEvents = pgTable(
     index('security_events_user_created_idx').on(t.userId, t.createdAt),
     check('security_events_type_check', oneOf('type', SECURITY_EVENT_TYPES)),
   ],
+);
+
+/** Two-step sign-in recovery codes (FR-AUTH-05): 10 per user, single use, stored as SHA-256. */
+export const recoveryCodes = pgTable(
+  'recovery_codes',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    codeHash: text('code_hash').notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('recovery_codes_user_idx').on(t.userId)],
 );

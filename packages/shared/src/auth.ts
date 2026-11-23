@@ -74,3 +74,39 @@ export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type SessionResponse = z.infer<typeof sessionResponseSchema>;
 export type MeResponse = z.infer<typeof meResponseSchema>;
 export type UpdateMeRequest = z.infer<typeof updateMeRequestSchema>;
+
+// --- Two-step sign-in (FR-AUTH-05) -----------------------------------------------------------
+
+const totpCode = z.string().regex(/^\d{6}$/, { error: 'Enter the 6-digit code from your app.' });
+
+export const mfaChallengeResponseSchema = z
+  .object({ mfaRequired: z.literal(true), challengeToken: z.string() })
+  .openapi('MfaChallengeResponse');
+
+/** Either an authenticator code or a recovery code, never both. */
+export const twoFactorLoginRequestSchema = z
+  .union([
+    z.object({ challengeToken: token, code: totpCode }).strict(),
+    z.object({ challengeToken: token, recoveryCode: z.string().min(10).max(20) }).strict(),
+  ])
+  .openapi('TwoFactorLoginRequest');
+
+export const twoFactorSetupResponseSchema = z
+  .object({ secret: z.string(), otpauthUrl: z.string(), qrSvg: z.string() })
+  .openapi('TwoFactorSetupResponse');
+
+export const twoFactorEnableRequestSchema = z
+  .object({ code: totpCode })
+  .openapi('TwoFactorEnableRequest');
+
+export const recoveryCodesResponseSchema = z
+  .object({ recoveryCodes: z.array(z.string()).length(10) })
+  .openapi('RecoveryCodesResponse');
+
+export const passwordConfirmRequestSchema = z
+  .object({ password: z.string().min(1).max(PASSWORD_MAX_LENGTH) })
+  .openapi('PasswordConfirmRequest');
+
+export type MfaChallengeResponse = z.infer<typeof mfaChallengeResponseSchema>;
+export type TwoFactorLoginRequest = z.infer<typeof twoFactorLoginRequestSchema>;
+export type TwoFactorSetupResponse = z.infer<typeof twoFactorSetupResponseSchema>;

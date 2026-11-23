@@ -9,6 +9,7 @@ import {
   type TenantStatus,
 } from '@setubandh/shared';
 import {
+  bigint,
   boolean,
   char,
   check,
@@ -52,6 +53,8 @@ export const users = pgTable('users', {
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   totpSecretEnc: text('totp_secret_enc'),
   totpEnabled: boolean('totp_enabled').notNull().default(false),
+  /** Last accepted TOTP time step: a code can never be used twice. */
+  totpLastStep: bigint('totp_last_step', { mode: 'number' }),
   avatarUrl: text('avatar_url'),
   locale: text('locale').notNull().default('en'),
   lastLoginAt: timestamp('last_login_at', { withTimezone: true }),

@@ -8,14 +8,17 @@ import { BREACHED_PASSWORDS, HibpBreachedPasswords } from './breached-passwords'
 import { AuthRateLimitGuard } from './rate-limit.guard';
 import { LoginLockout } from './lockout';
 import { TokenService } from './tokens';
+import { TwoFactorController } from './two-factor.controller';
+import { TwoFactorService } from './two-factor.service';
 import './auth.openapi';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, TwoFactorController],
   providers: [
     AuthService,
     AuthRepository,
     TokenService,
+    TwoFactorService,
     LoginLockout,
     AuthRateLimitGuard,
     { provide: BREACHED_PASSWORDS, useFactory: () => new HibpBreachedPasswords() },

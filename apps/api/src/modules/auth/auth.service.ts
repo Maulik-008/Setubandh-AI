@@ -1,19 +1,24 @@
-import { randomBytes, randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   AppError,
   type LoginRequest,
+  type MfaChallengeResponse,
   type SessionResponse,
   type SignupRequest,
+  type TwoFactorLoginRequest,
 } from '@setubandh/shared';
+import type { Redis } from 'ioredis';
 import { CLOCK, type Clock } from '../../core/clock';
 import { ENV, type AppEnv } from '../../core/env';
 import { MailerService } from '../../core/mailer';
+import { VALKEY } from '../../core/valkey';
 import { AuthRepository, type RequestMeta } from './auth.repository';
 import { BREACHED_PASSWORDS, type BreachedPasswordChecker } from './breached-passwords';
 import { LoginLockout } from './lockout';
 import { hashPassword, verifyPassword } from './passwords';
 import { ACCESS_TOKEN_TTL_SECONDS, REFRESH_TOKEN_TTL_MS, TokenService } from './tokens';
+import { TwoFactorService } from './two-factor.service';
 import { workspaceDefaults, workspaceSlug } from './workspace-defaults';
 
 export const VERIFY_LINK_TTL_MS = 24 * 60 * 60 * 1000;
@@ -24,6 +29,19 @@ export const REFRESH_REUSE_GRACE_MS = 10_000;
 export interface IssuedSession {
   session: SessionResponse;
   refreshToken: string;
+}
+
+/** Password was right but the account has two-step sign-in: no session yet. */
+export interface PendingMfa {
+  challenge: MfaChallengeResponse;
+}
+
+export const MFA_CHALLENGE_TTL_MS = 5 * 60 * 1000;
+
+interface StoredChallenge {
+  userId: string;
+  email: string;
+  expiresAt: number;
 }
 
 /** Sign up, sign in, sessions and email verification (FR-AUTH-01..03, 11). */
@@ -37,6 +55,8 @@ export class AuthService {
     @Inject(BREACHED_PASSWORDS) private readonly breached: BreachedPasswordChecker,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(ENV) private readonly env: AppEnv,
+    @Inject(VALKEY) private readonly valkey: Redis,
+    private readonly twoFactor: TwoFactorService,
   ) {}
 
   /** Always resolves the same way whether or not the email exists (no account enumeration). */
@@ -66,7 +86,7 @@ export class AuthService {
     await this.sendVerification(user.id, user.email);
   }
 
-  async login(input: LoginRequest, meta: RequestMeta): Promise<IssuedSession> {
+  async login(input: LoginRequest, meta: RequestMeta): Promise<IssuedSession | PendingMfa> {
     const lock = await this.lockout.check(input.email, meta.ip);
     if (lock.locked) {
       throw new AppError('TOO_MANY_ATTEMPTS', {
@@ -86,9 +106,61 @@ export class AuthService {
       }
       throw new AppError('INVALID_CREDENTIALS');
     }
-    await this.lockout.clearAccount(input.email);
-    const now = this.clock.now();
-    await this.repo.recordLogin(user.id, now);
+    if (user.totpEnabled) return { challenge: await this.createChallenge(user.id, user.email) };
+    return this.completeLogin(user, input.email, meta);
+  }
+
+  /** Second step (FR-AUTH-05). A challenge is single use: any answer, right or wrong, consumes it. */
+  async loginWithSecondFactor(
+    input: TwoFactorLoginRequest,
+    meta: RequestMeta,
+  ): Promise<IssuedSession> {
+    const key = `t:auth:mfa:${createHash('sha256').update(input.challengeToken).digest('hex')}`;
+    const raw = await this.valkey.getdel(key);
+    const stored = raw ? (JSON.parse(raw) as StoredChallenge) : null;
+    if (!stored || stored.expiresAt <= this.clock.now().getTime())
+      throw new AppError('SESSION_REVOKED');
+    const lock = await this.lockout.check(stored.email, meta.ip);
+    if (lock.locked) {
+      throw new AppError('TOO_MANY_ATTEMPTS', {
+        details: { retryAfterSeconds: lock.retryAfterSeconds },
+      });
+    }
+    const user = await this.repo.findUserById(stored.userId);
+    if (!user?.totpEnabled) throw new AppError('SESSION_REVOKED');
+    const proof = 'code' in input ? { code: input.code } : { recoveryCode: input.recoveryCode };
+    if (!(await this.twoFactor.verifyLogin(user, proof, meta))) {
+      const reachedLimit = await this.lockout.recordFailure(stored.email, meta.ip);
+      await this.repo.recordSecurityEvent(
+        reachedLimit ? 'login_locked' : 'login_failed',
+        user.id,
+        meta,
+        { step: 'second_factor' },
+      );
+      throw new AppError('INVALID_CREDENTIALS');
+    }
+    return this.completeLogin(user, stored.email, meta);
+  }
+
+  private async createChallenge(userId: string, email: string): Promise<MfaChallengeResponse> {
+    const challengeToken = this.tokens.opaqueToken();
+    const stored: StoredChallenge = {
+      userId,
+      email,
+      expiresAt: this.clock.now().getTime() + MFA_CHALLENGE_TTL_MS,
+    };
+    const key = `t:auth:mfa:${createHash('sha256').update(challengeToken).digest('hex')}`;
+    await this.valkey.set(key, JSON.stringify(stored), 'PX', MFA_CHALLENGE_TTL_MS);
+    return { mfaRequired: true, challengeToken };
+  }
+
+  private async completeLogin(
+    user: { id: string; email: string; name: string; emailVerifiedAt: Date | null },
+    email: string,
+    meta: RequestMeta,
+  ): Promise<IssuedSession> {
+    await this.lockout.clearAccount(email);
+    await this.repo.recordLogin(user.id, this.clock.now());
     await this.repo.recordSecurityEvent('login_succeeded', user.id, meta);
     return this.issue(user, randomUUID(), meta);
   }

@@ -1,7 +1,7 @@
 # M1-10: Optional two-step sign-in
 
 Ticket: M1-10
-Status: ready-for-agent (plan approved 2026-11-23)
+Status: ready-for-human (implemented 2026-11-23; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §9, week 2](../../plan/01-mvp-1-unified-inbox.md)
 Requirements: FR-AUTH-05 (TOTP, 10 recovery codes), §14.3 (TOTP secrets encrypted with AES-256-GCM). Workspace-wide "require 2FA" is M3 (MVP 1 scope table).
 
@@ -40,3 +40,10 @@ Any user can turn on an authenticator-app code (TOTP). When it is on, signing in
 - Workspace "require 2FA for all members" (M3).
 - Mandatory 2FA for platform admins (with admin lite, M1-30).
 - The setup screens (M1-13).
+
+## Implementation notes (2026-11-23)
+
+- Acceptance test: `apps/api/test/two-factor.int.test.ts` (7 tests on real Postgres and Valkey). Encryption: `apps/api/test/crypto.test.ts` (property-based).
+- The property-based test found a real bug before release: an empty secret sealed to exactly 28 bytes but `open()` required 29. Fixed.
+- The login challenge lives in Valkey (5 min) and is consumed by any answer, right or wrong, so every guess needs the password again; wrong codes count toward the 10-in-15-minutes lockout.
+- The account lockout counter is cleared only after the full login (both steps) succeeds.
