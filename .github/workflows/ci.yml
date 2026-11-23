@@ -35,6 +35,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
+      - name: No merge-conflict markers committed
+        run: "! git grep -nE '^(<<<<<<<|>>>>>>>)( |$)' -- . ':!pnpm-lock.yaml'"
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
