@@ -27,7 +27,7 @@ AI (MVP 2): Claude API via `@anthropic-ai/sdk`; model IDs come from config, neve
 ## Commands
 
 <<<<<<< HEAD
-Available now (M1-01 to M1-04): `pnpm db:migrate` | `pnpm db:seed` | `pnpm env:init` | `pnpm env:check` | `pnpm dev` | `pnpm dev:services` / `:down` / `:reset` | `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check`. How to write each kind of test: `docs/testing.md`.
+Available now (week 1): `pnpm build` | `pnpm db:migrate` | `pnpm db:seed` | `pnpm env:init` | `pnpm env:check` | `pnpm dev` | `pnpm dev:services` / `:down` / `:reset` | `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check`. How to write each kind of test: `docs/testing.md`.
 Later tickets add: `pnpm ui:audit` (M1-05) | `pnpm ai:evals` (MVP 2).
 =======
 Available now (M1-01 to M1-05): `pnpm env:init` | `pnpm env:check` | `pnpm dev` | `pnpm dev:services` / `:down` / `:reset` | `pnpm lint` | `pnpm typecheck` | `pnpm test` | `pnpm test:integration` (Docker) | `pnpm test:browser` | `pnpm test:e2e` | `pnpm format` | `pnpm format:check` | `pnpm ui:audit` (contrast.py + audit.py, Python 3). How to write each kind of test: `docs/testing.md`.

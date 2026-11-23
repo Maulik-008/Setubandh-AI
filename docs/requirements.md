@@ -1651,7 +1651,10 @@ Your hosting must be a VPS or dedicated server with root access and Docker (shar
 | Staging | Same images as production; seeded demo tenants; Razorpay / Stripe test mode | Separate test app or the main app in development mode with test numbers |
 | Production | Real tenants | Live app after App Review |
 
-## 15.4 CI/CD pipeline (GitLab CI)
+## 15.4 CI/CD pipeline (GitHub Actions)
+
+> Implemented in `.github/workflows/ci.yml` (M1-06). The repo is on GitHub, so GitHub Actions replaces the GitLab CI originally planned; images go to GitHub Container Registry. The stages below are unchanged.
+
 
 1. `install` (pnpm with cache) → 2. `lint` (ESLint, boundaries, Prettier) → 3. `typecheck` → 4. `test:unit` (Vitest) → 5. `test:integration` (Testcontainers Postgres + Redis; includes the **tenant isolation suite**) → 6. `ui:audit` (Paper & Pastel `audit.py`) → 7. `ai:evals` (only when `packages/ai` changes, plus nightly) → 8. `build` (Turborepo) → 9. `e2e` (Playwright against a compose stack) → 10. `docker` (build and push images tagged with commit SHA) → 11. `deploy:staging` (automatic on `main`) → 12. `deploy:production` (manual approval; runs migrations first, then rolling restart of `api` and `worker`).
 

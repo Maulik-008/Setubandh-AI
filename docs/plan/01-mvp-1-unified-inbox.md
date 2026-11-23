@@ -472,6 +472,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-05-design-system/spec.md](../specs/m1-05-design-system/spec.md) · **Decision:** [ADR 0012](../adr/0012-astryx-paper-pastel-theme.md) (Vite 8 works; no Vite 7 fallback)
 
 #### M1-06 CI pipeline and Docker images
+**Spec:** [docs/specs/m1-06-ci-and-images/spec.md](../specs/m1-06-ci-and-images/spec.md)
 **Build:** GitHub Actions stages: install, lint, typecheck, unit, integration (Testcontainers), UI audit, build, E2E, Docker images tagged with commit SHA and pushed to GitHub Container Registry; staging deploy job present but disabled until a staging server exists (Q-08).
 **Acceptance:**
 - [ ] Pipeline green on `main`; images pushed.

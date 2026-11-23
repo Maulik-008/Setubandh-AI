@@ -1,0 +1,28 @@
+# Serves a single-page app on :8080. TLS, HSTS and the public hostnames live in the edge Caddy
+# (requirements §15.2); this container only serves files.
+{
+	admin off
+	auto_https off
+}
+
+:8080 {
+	root * /srv
+	encode zstd gzip
+
+	# Hashed build assets never change: cache them for a year.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	# Everything else resolves to index.html: always revalidate so new deploys are picked up.
+	@html not path /assets/*
+	header @html Cache-Control "no-cache"
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		-Server
+	}
+
+	try_files {path} /index.html
+	file_server
+}

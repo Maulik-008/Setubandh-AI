@@ -28,7 +28,13 @@
     "test:e2e": {
       "dependsOn": ["build"],
       "outputs": ["playwright-report/**", "test-results/**"],
-      "env": ["E2E_BROWSERS", "E2E_VIDEO", "PLAYWRIGHT_CHROMIUM_EXECUTABLE", "CI"]
+      "env": [
+        "CI",
+        "E2E_BROWSERS",
+        "E2E_UPDATE_SNAPSHOTS",
+        "E2E_VIDEO",
+        "PLAYWRIGHT_CHROMIUM_EXECUTABLE"
+      ]
     },
     "dev": {
       "cache": false,

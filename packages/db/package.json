@@ -23,13 +23,13 @@
   },
   "devDependencies": {
     "@setubandh/config": "workspace:*",
-    "@setubandh/env": "workspace:*",
     "@setubandh/testing": "workspace:*",
     "@swc-node/register": "^1.12.1",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "0.31.11"
   },
   "dependencies": {
+    "@setubandh/env": "workspace:*",
     "@setubandh/shared": "workspace:*",
     "drizzle-orm": "0.45.4",
     "pg": "^8.23.1",

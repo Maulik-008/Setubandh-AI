@@ -9,6 +9,8 @@ import { defineConfig, devices, type Project } from '@playwright/test';
  * - Failure evidence: trace, screenshot and video are kept for failed tests.
  * - PLAYWRIGHT_CHROMIUM_EXECUTABLE reuses a pre-installed Chromium (cloud sandboxes).
  * - E2E_VIDEO=off skips video recording where Playwright's ffmpeg is not installed.
+ * - E2E_UPDATE_SNAPSHOTS=missing writes baselines that do not exist yet (CI uploads them for
+ *   review) instead of failing; existing baselines are still compared.
  */
 const PORT = 4173;
 const isCI = Boolean(process.env.CI);
@@ -35,6 +37,7 @@ const phone: Record<Browser, Project['use']> = {
 };
 
 export default defineConfig({
+  updateSnapshots: process.env.E2E_UPDATE_SNAPSHOTS === 'missing' ? 'missing' : 'none',
   testDir: './e2e',
   outputDir: './test-results',
   snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{testFilePath}/{arg}{ext}',

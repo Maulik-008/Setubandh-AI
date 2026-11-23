@@ -1,0 +1,15 @@
+# Keep the build context small and free of secrets.
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+**/test-results
+**/playwright-report
+.git
+.github
+.claude
+docs
+**/.env
+**/.env.*
+!.env.example
+*.log

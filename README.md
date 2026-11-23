@@ -109,6 +109,14 @@ pnpm test:e2e           # Playwright: 3 browsers x desktop/phone x light/dark, a
 
 Testing guide: [docs/testing.md](docs/testing.md).
 
+Production images (built by CI for every push, pushed to GHCR from `main`):
+
+```bash
+pnpm build                                                                   # compile packages and apps with SWC
+docker build -f infra/docker/node-app.Dockerfile --build-arg APP=api -t setubandh-api .
+docker build -f infra/docker/static-app.Dockerfile --build-arg APP=web -t setubandh-web .
+```
+
 ## Working with Claude Code
 
 This project is built ticket by ticket with Claude Code. Setup is committed in the repo:

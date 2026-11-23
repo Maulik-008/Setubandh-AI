@@ -485,6 +485,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@setubandh/env':
+        specifier: workspace:*
+        version: link:../env
       '@setubandh/shared':
         specifier: workspace:*
         version: link:../shared
@@ -501,9 +504,6 @@ importers:
       '@setubandh/config':
         specifier: workspace:*
         version: link:../config
-      '@setubandh/env':
-        specifier: workspace:*
-        version: link:../env
       '@setubandh/testing':
         specifier: workspace:*
         version: link:../testing
