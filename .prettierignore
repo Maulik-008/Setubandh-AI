@@ -8,3 +8,4 @@ test-results/
 
 # Markdown docs are hand-formatted (tables, prose)
 *.md
+.claude/worktrees/

@@ -13,6 +13,10 @@
     "test": "vitest run --project unit"
   },
   "devDependencies": {
-    "@setubandh/config": "workspace:*"
+    "@setubandh/config": "workspace:*",
+    "@types/pg": "^8.23.1"
+  },
+  "dependencies": {
+    "pg": "^8.23.1"
   }
 }

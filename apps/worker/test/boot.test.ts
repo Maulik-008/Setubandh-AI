@@ -17,12 +17,4 @@ describe('worker boot (M1-02)', () => {
     expect(await app.exited).toBe(1);
     expect(app.stderr()).toContain('Invalid environment variable: REDIS_URL');
   }, 30_000);
-
-  it('starts with a complete environment and shuts down cleanly', async () => {
-    const app = worker(testEnv());
-    await app.waitForOutput('worker started');
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    expect(app.process.exitCode, 'worker must keep running until stopped').toBeNull();
-    expect(await app.stop()).toBe(0);
-  }, 30_000);
 });

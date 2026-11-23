@@ -13,12 +13,12 @@
     "test": "vitest run --project unit",
     "check": "node --import @swc-node/register/esm-register src/check.ts"
   },
-  "dependencies": {
-    "zod": "^4.6.7"
-  },
   "devDependencies": {
     "@setubandh/config": "workspace:*",
     "@setubandh/testing": "workspace:*",
     "@swc-node/register": "^1.12.1"
+  },
+  "dependencies": {
+    "@setubandh/shared": "workspace:*"
   }
 }

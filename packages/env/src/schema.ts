@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@setubandh/shared';
 
 const required = z.string({ error: 'missing' }).min(1, { error: 'missing' });
 /** Must be listed in .env but may be empty (empty = feature off, e.g. no SMTP login, Sentry off). */

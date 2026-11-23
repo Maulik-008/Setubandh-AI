@@ -130,9 +130,30 @@ export function createConfig({ tsconfigRootDir, react = false, ignores = [] }) {
           'error',
           { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
         ],
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: 'zod',
+                message:
+                  "Import { z } from '@setubandh/shared' (one Zod instance, extended for OpenAPI).",
+              },
+            ],
+          },
+        ],
       },
     },
     boundariesConfig(repoRoot),
+    {
+      // Test matchers (expect.any, JSON.parse of fixtures) are typed `any`; keep app code strict.
+      files: ['**/*.test.ts', '**/*.test.tsx', '**/test/**/*.ts', '**/e2e/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+      },
+    },
     {
       files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
       ...tseslint.configs.disableTypeChecked,

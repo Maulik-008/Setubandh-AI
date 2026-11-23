@@ -6,3 +6,9 @@ packages:
 allowBuilds:
   '@swc/core': true
   esbuild: true
+  msgpackr-extract: true
+  # Not needed (telemetry or optional native add-ons with JS fallbacks):
+  '@scarf/scarf': false
+  cpu-features: false
+  protobufjs: false
+  ssh2: false

@@ -1,12 +1,7 @@
 import type { TestProject } from 'vitest/node';
 import { startTestInfra } from './containers';
 
-declare module 'vitest' {
-  export interface ProvidedContext {
-    postgresUrl: string;
-    valkeyUrl: string;
-  }
-}
+import './vitest-context';
 
 /**
  * Vitest globalSetup for integration projects: starts the containers once per run and

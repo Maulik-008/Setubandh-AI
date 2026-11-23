@@ -448,10 +448,11 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [x] Missing env var stops boot with a message naming it.
 
 #### M1-03 API and worker skeletons
+**Spec:** [docs/specs/m1-03-api-and-worker-skeletons/spec.md](../specs/m1-03-api-and-worker-skeletons/spec.md)
 **Build:** NestJS on Fastify; Pino logs with `requestId` and `tenantId`; `AppError` + error filter with the response shape from requirements §12.1; `/health/live`, `/health/ready`; OpenAPI in non-production; worker app bootstrapping BullMQ.
 **Acceptance:**
-- [ ] `/health/ready` checks Postgres and Redis.
-- [ ] Every error response has `code`, `message`, `requestId`.
+- [x] `/health/ready` checks Postgres and Redis.
+- [x] Every error response has `code`, `message`, `requestId`.
 
 #### M1-04 Database foundation with row-level security
 **Build:** Drizzle + migrations; roles `orbit_app` (NOBYPASSRLS) and `orbit_admin`; `withTenant(tenantId, userId, fn)` helper using `SET LOCAL`; RLS policy helper; first tables `tenants`, `users`, `memberships`.

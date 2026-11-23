@@ -15,6 +15,7 @@
     "test:integration": "vitest run --project integration"
   },
   "dependencies": {
+    "@fastify/static": "10.1.12",
     "@nestjs/common": "^12.6.0",
     "@nestjs/core": "^12.6.0",
     "@nestjs/platform-fastify": "^12.6.0",
