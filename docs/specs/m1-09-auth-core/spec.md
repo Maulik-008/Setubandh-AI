@@ -1,7 +1,7 @@
 # M1-09: Auth core
 
 Ticket: M1-09
-Status: ready-for-agent (plan approved 2026-11-23)
+Status: ready-for-human (implemented 2026-11-23 in two commits; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §9, week 2](../../plan/01-mvp-1-unified-inbox.md)
 Requirements: FR-AUTH-01..04, FR-AUTH-11, §5.1 (users and memberships), §11.2 (users, memberships, refresh_tokens), §14.3 (security), §12.1 (errors)
 Decisions (developer, 2026-11-23): build a minimal mailer and security-event log now (full email service in M1-14, append-only audit in M1-12); breached-password check through the HIBP k-anonymity API with a bundled fallback list; signup creates the first workspace with the user as Owner.
@@ -90,3 +90,12 @@ Further tests:
 - Email templates and file storage (M1-14).
 - Sessions list (P1).
 - Google login (M6).
+
+## Implementation notes (2026-11-23)
+
+- All four acceptance criteria have integration tests on real Postgres 18 and Valkey 8.1: `apps/api/test/auth.int.test.ts` (reuse, lockout, `EMAIL_NOT_VERIFIED`) and `apps/api/test/auth-reset.int.test.ts` (reset revokes all sessions), with 21 auth tests in total.
+- Two refreshes from parallel tabs within 10 s get `409 CONFLICT` ("retry"), not a family revoke; the browser already holds the newer cookie.
+- Unknown emails lock out exactly like real ones (counters are keyed by a hash of the email).
+- `/v1/me` lives in a new `users` module; `@RequirePermission` is applied to it with the permission guard in M1-11.
+- HIBP: unit-tested with a fake server (prefix only, `Add-Padding`, zero-count padding ignored, fallback on network error or 5xx).
+- Not yet in this ticket: auth screens (M1-13), email templates (M1-14).

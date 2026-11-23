@@ -4,7 +4,8 @@ import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
-import { BREACHED_PASSWORDS, LocalBreachedPasswords } from './breached-passwords';
+import { BREACHED_PASSWORDS, HibpBreachedPasswords } from './breached-passwords';
+import { AuthRateLimitGuard } from './rate-limit.guard';
 import { LoginLockout } from './lockout';
 import { TokenService } from './tokens';
 import './auth.openapi';
@@ -16,7 +17,8 @@ import './auth.openapi';
     AuthRepository,
     TokenService,
     LoginLockout,
-    { provide: BREACHED_PASSWORDS, useClass: LocalBreachedPasswords },
+    AuthRateLimitGuard,
+    { provide: BREACHED_PASSWORDS, useFactory: () => new HibpBreachedPasswords() },
     // Every route needs an access token unless it is marked @Public().
     { provide: APP_GUARD, useClass: AuthGuard },
   ],

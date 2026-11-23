@@ -498,7 +498,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Acceptance:**
 - [x] Reused refresh token revokes the family and writes a security audit entry.
 - [x] 11th failed login in 15 minutes is rejected for that account and IP.
-- [ ] Reset revokes all sessions.
+- [x] Reset revokes all sessions.
 - [x] Unverified user gets `EMAIL_NOT_VERIFIED` when trying to connect a channel.
 
 #### M1-10 Optional two-step sign-in

@@ -2,6 +2,7 @@ import {
   acceptedResponseSchema,
   emailOnlyRequestSchema,
   loginRequestSchema,
+  resetPasswordRequestSchema,
   sessionResponseSchema,
   signupRequestSchema,
   verifyEmailRequestSchema,
@@ -62,4 +63,22 @@ registerRoute({
   summary: 'Send the verification link again (always 202)',
   request: body(emailOnlyRequestSchema),
   responses: { 202: { description: 'Accepted', ...json(acceptedResponseSchema) } },
+});
+registerRoute({
+  method: 'post',
+  path: '/v1/auth/forgot-password',
+  tags: ['auth'],
+  summary: 'Email a password reset link (1 h, single use; always 202)',
+  request: body(emailOnlyRequestSchema),
+  responses: { 202: { description: 'Accepted', ...json(acceptedResponseSchema) } },
+});
+registerRoute({
+  method: 'post',
+  path: '/v1/auth/reset-password',
+  tags: ['auth'],
+  summary: 'Set a new password with the link token; signs out every session',
+  request: body(resetPasswordRequestSchema),
+  responses: {
+    200: { description: 'Password changed', ...json(z.object({ status: z.literal('reset') })) },
+  },
 });

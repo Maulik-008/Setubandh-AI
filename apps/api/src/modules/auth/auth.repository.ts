@@ -61,6 +61,10 @@ export class AuthRepository {
     await this.db.platform.update(users).set({ emailVerifiedAt: at }).where(eq(users.id, userId));
   }
 
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    await this.db.platform.update(users).set({ passwordHash }).where(eq(users.id, userId));
+  }
+
   async recordLogin(userId: string, at: Date): Promise<void> {
     await this.db.platform.update(users).set({ lastLoginAt: at }).where(eq(users.id, userId));
   }

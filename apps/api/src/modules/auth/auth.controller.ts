@@ -1,7 +1,8 @@
-import { Controller, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
+import { Controller, HttpCode, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
 import {
   emailOnlyRequestSchema,
   loginRequestSchema,
+  resetPasswordRequestSchema,
   signupRequestSchema,
   verifyEmailRequestSchema,
   type LoginRequest,
@@ -14,6 +15,7 @@ import { ZodBody } from '../../core/validation';
 import { Public } from './auth.guard';
 import type { RequestMeta } from './auth.repository';
 import { AuthService, type IssuedSession } from './auth.service';
+import { AuthRateLimitGuard } from './rate-limit.guard';
 import { REFRESH_TOKEN_TTL_MS } from './tokens';
 
 export const REFRESH_COOKIE = 'sb_refresh';
@@ -27,6 +29,7 @@ function meta(request: FastifyRequest): RequestMeta {
 }
 
 @Public()
+@UseGuards(AuthRateLimitGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -85,6 +88,26 @@ export class AuthController {
   async resendVerification(@ZodBody(emailOnlyRequestSchema) body: { email: string }) {
     await this.auth.resendVerification(body.email);
     return ACCEPTED;
+  }
+
+  @Post('forgot-password')
+  @HttpCode(202)
+  async forgotPassword(
+    @ZodBody(emailOnlyRequestSchema) body: { email: string },
+    @Req() req: FastifyRequest,
+  ) {
+    await this.auth.forgotPassword(body.email, meta(req));
+    return ACCEPTED;
+  }
+
+  @Post('reset-password')
+  @HttpCode(200)
+  async resetPassword(
+    @ZodBody(resetPasswordRequestSchema) body: { token: string; password: string },
+    @Req() req: FastifyRequest,
+  ) {
+    await this.auth.resetPassword(body.token, body.password, meta(req));
+    return { status: 'reset' as const };
   }
 
   /** httpOnly, SameSite=Lax, path-scoped refresh cookie (FR-AUTH-03); Secure outside development. */

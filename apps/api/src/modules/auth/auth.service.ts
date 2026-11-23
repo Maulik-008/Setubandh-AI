@@ -17,6 +17,7 @@ import { ACCESS_TOKEN_TTL_SECONDS, REFRESH_TOKEN_TTL_MS, TokenService } from './
 import { workspaceDefaults, workspaceSlug } from './workspace-defaults';
 
 export const VERIFY_LINK_TTL_MS = 24 * 60 * 60 * 1000;
+export const RESET_LINK_TTL_MS = 60 * 60 * 1000;
 /** A token rotated this recently may be presented again by a parallel tab: retry, not an attack. */
 export const REFRESH_REUSE_GRACE_MS = 10_000;
 
@@ -141,6 +142,42 @@ export class AuthService {
   async resendVerification(email: string): Promise<void> {
     const user = await this.repo.findUserByEmail(email);
     if (user && !user.emailVerifiedAt) await this.sendVerification(user.id, user.email);
+  }
+
+  /** Always "accepted": never reveals whether an account exists (FR-AUTH-04). */
+  async forgotPassword(email: string, meta: RequestMeta): Promise<void> {
+    const user = await this.repo.findUserByEmail(email);
+    if (!user) return;
+    const token = this.tokens.opaqueToken();
+    await this.repo.insertEmailToken({
+      userId: user.id,
+      purpose: 'reset_password',
+      tokenHash: this.tokens.hashEmailToken(token),
+      expiresAt: new Date(this.clock.now().getTime() + RESET_LINK_TTL_MS),
+    });
+    await this.repo.recordSecurityEvent('password_reset_requested', user.id, meta);
+    const link = `${this.env.APP_URL}/reset-password?token=${token}`;
+    await this.mailer.send({
+      to: user.email,
+      subject: 'Reset your Setubandh AI password',
+      text: `Reset your password within 1 hour: ${link}\nIf you did not ask for this, ignore this email; your password stays the same.`,
+      html: `<p><a href="${link}">Reset your password</a> (valid for 1 hour, once).</p><p>If you did not ask for this, ignore this email.</p>`,
+    });
+  }
+
+  /** Single-use link; sets the new password and signs the user out everywhere (FR-AUTH-04). */
+  async resetPassword(token: string, password: string, meta: RequestMeta): Promise<void> {
+    await this.assertPasswordAllowed(password);
+    const now = this.clock.now();
+    const userId = await this.repo.consumeEmailToken(
+      this.tokens.hashEmailToken(token),
+      'reset_password',
+      now,
+    );
+    if (!userId) throw new AppError('TOKEN_INVALID');
+    await this.repo.updatePassword(userId, await hashPassword(password));
+    await this.repo.revokeAllForUser(userId, now);
+    await this.repo.recordSecurityEvent('password_reset', userId, meta);
   }
 
   async assertPasswordAllowed(password: string): Promise<void> {
