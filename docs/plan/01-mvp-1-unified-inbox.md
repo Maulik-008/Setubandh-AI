@@ -444,8 +444,8 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-02-local-stack-and-config/spec.md](../specs/m1-02-local-stack-and-config/spec.md)
 **Build:** `docker-compose.dev.yml` with Postgres 18 + pgvector, Valkey 8.1, a local S3-compatible container (SeaweedFS), Mailpit. Config module (`packages/env`) validates every env var with Zod at boot; `pnpm env:init` creates a local `.env`.
 **Acceptance:**
-- [ ] `pnpm dev` starts all services and apps.
-- [ ] Missing env var stops boot with a message naming it.
+- [x] `pnpm dev` starts all services and apps.
+- [x] Missing env var stops boot with a message naming it.
 
 #### M1-03 API and worker skeletons
 **Build:** NestJS on Fastify; Pino logs with `requestId` and `tenantId`; `AppError` + error filter with the response shape from requirements §12.1; `/health/live`, `/health/ready`; OpenAPI in non-production; worker app bootstrapping BullMQ.

@@ -1,0 +1,81 @@
+# Local development services (ticket M1-02, requirements §15.3).
+# Start everything with `pnpm dev`, or only the services with `pnpm dev:services`.
+# S3 keys and the bucket name come from the repo-root .env (`pnpm env:init`).
+# Ports bind to 127.0.0.1 only; data lives in named volumes (`pnpm dev:services:reset` wipes them).
+name: setubandh-dev
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg18
+    environment:
+      POSTGRES_DB: setubandh
+      # Local-only superuser. M1-04 migrations create orbit_app (NOBYPASSRLS) and tighten roles.
+      POSTGRES_USER: orbit_admin
+      POSTGRES_PASSWORD: orbit_admin_local
+    ports: ['127.0.0.1:5432:5432']
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U orbit_admin -d setubandh']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  valkey:
+    image: valkey/valkey:8.1
+    # Same persistence and eviction settings as production (§15.2): queues must never be evicted.
+    command: ['valkey-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    ports: ['127.0.0.1:6379:6379']
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ['CMD', 'valkey-cli', 'ping']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # S3-compatible store standing in for Cloudflare R2 (ADR 0011).
+  s3:
+    image: chrislusf/seaweedfs:4.54
+    command: ['server', '-s3', '-dir=/data', '-ip.bind=0.0.0.0', '-s3.port=8333']
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?run pnpm env:init}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?run pnpm env:init}
+    ports: ['127.0.0.1:8333:8333']
+    volumes:
+      - s3-data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:8333/healthz || exit 1']
+      interval: 2s
+      timeout: 3s
+      retries: 60
+
+  # One-shot: create the app bucket (idempotent), then exit.
+  s3-init:
+    image: chrislusf/seaweedfs:4.54
+    depends_on:
+      s3:
+        condition: service_healthy
+    entrypoint: ['/bin/sh', '/init/create-bucket.sh']
+    environment:
+      BUCKET: ${S3_BUCKET:?run pnpm env:init}
+    volumes:
+      - ./s3:/init:ro
+    restart: 'no'
+
+  mailpit:
+    image: axllent/mailpit:v1.34.0
+    ports:
+      - '127.0.0.1:1025:1025' # SMTP
+      - '127.0.0.1:8025:8025' # web inbox: http://localhost:8025
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres-data:
+  valkey-data:
+  s3-data:

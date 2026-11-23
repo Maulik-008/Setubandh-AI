@@ -1,7 +1,7 @@
 # M1-02: Local stack and typed config
 
 Ticket: M1-02
-Status: ready-for-agent (plan approved 2026-11-23)
+Status: ready-for-human (implemented 2026-11-23; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §9, week 1](../../plan/01-mvp-1-unified-inbox.md)
 Requirements: §15.3 (environments), §15.6 (configuration), §5.2 (Redis key and file prefixes, for later)
 Decisions: [ADR 0011](../../adr/0011-backend-stack-refresh.md); week 1 decisions in the plan file
@@ -97,3 +97,11 @@ The developer cannot run anything locally yet. There are no database, queue stor
 
 - Skills used: `tdd` (tests first for `loadEnv` and `env:init`).
 - `.claude/settings.json` now allows editing `.env.example` only; real `.env*` files stay blocked for Claude.
+
+## Implementation notes (2026-11-23)
+
+- `pnpm dev` was run by hand in the cloud sandbox: all five services healthy; api answered on :3000, web on :5173, admin on :5174, Mailpit on :8025.
+- Apps run TypeScript through `@swc-node/register` (decorator metadata, workspace sources). It prints a Node `DEP0205` deprecation warning (`module.register`); harmless, revisit when the package moves to `registerHooks`.
+- `SETUBANDH_ENV_FILE` overrides the `.env` path (used by boot tests so a developer's own `.env` is never read).
+- API and worker exit with code 0 on SIGTERM/SIGINT after closing Nest. The worker keeps itself alive until BullMQ processors arrive in M1-03.
+- Docker Hub rate-limited image pulls in the sandbox once; images are pinned (`chrislusf/seaweedfs:4.54`, `axllent/mailpit:v1.34.0`, `valkey/valkey:8.1`, `pgvector/pgvector:pg18`).

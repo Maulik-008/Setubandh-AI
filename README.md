@@ -77,18 +77,37 @@ The planned code layout (`apps/api`, `apps/worker`, `apps/web`, `apps/admin`, `p
 
 ## Getting started
 
-Requirements: Node 26 (see `.nvmrc`), pnpm 12 (`corepack enable`), Docker (for integration tests).
+Requirements: Node 26 (see `.nvmrc`), pnpm 12 (`corepack enable`), Docker.
 
 ```bash
 pnpm install
-pnpm --filter @setubandh/web exec playwright install --with-deps   # browsers for browser and E2E tests
+pnpm env:init   # creates .env with local defaults and random secrets (never commit it)
+pnpm dev        # checks .env, starts the Docker services, then api, worker, web and admin
+```
+
+| What | Where |
+|---|---|
+| Web app | http://localhost:5173 |
+| Admin app | http://localhost:5174 |
+| API | http://localhost:3000 |
+| Email inbox (Mailpit) | http://localhost:8025 |
+| Postgres 18 + pgvector | `127.0.0.1:5432`, database `setubandh` |
+| Valkey 8.1 | `127.0.0.1:6379` |
+| S3 (SeaweedFS, stands in for R2) | http://127.0.0.1:8333 |
+
+Services only: `pnpm dev:services`, stop with `pnpm dev:services:down`, wipe local data with `pnpm dev:services:reset`. Check `.env` without starting anything: `pnpm env:check`. An app that finds a missing or invalid variable stops and names it.
+
+Tests:
+
+```bash
+pnpm --filter @setubandh/web exec playwright install --with-deps   # browsers, once
 pnpm lint && pnpm typecheck && pnpm test
-pnpm test:integration   # real Postgres 18 + Valkey in Docker
+pnpm test:integration   # real Postgres 18 + Valkey and the dev stack, in Docker
 pnpm test:browser       # React component tests in real Chromium
 pnpm test:e2e           # Playwright: 3 browsers x desktop/phone x light/dark, axe + screenshots
 ```
 
-Testing guide: [docs/testing.md](docs/testing.md). `pnpm dev` and the local Docker stack arrive with M1-02. Copy `.env.example` to `.env` for local configuration; never commit `.env`.
+Testing guide: [docs/testing.md](docs/testing.md).
 
 ## Working with Claude Code
 

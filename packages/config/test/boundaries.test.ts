@@ -56,4 +56,17 @@ describe('module boundaries (requirements §4.5)', () => {
   it('fails when a package imports an app', async () => {
     expect(await boundaryErrors('packages/shared/src/imports-app.ts')).toHaveLength(1);
   });
+
+  it.each(['apps/web/src/imports-env.ts', 'apps/admin/src/imports-env.ts'])(
+    'fails when a browser app imports the server-only env package (%s)',
+    async (file) => {
+      const errors = await boundaryErrors(file);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toContain('server-only');
+    },
+  );
+
+  it('allows server apps to import the env package', async () => {
+    expect(await boundaryErrors('apps/api/src/modules/beta/imports-env.ts')).toEqual([]);
+  });
 });

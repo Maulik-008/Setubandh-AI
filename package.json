@@ -7,6 +7,12 @@
     "node": ">=26.0.0 <27"
   },
   "scripts": {
+    "dev": "pnpm env:check && pnpm dev:services && turbo run dev",
+    "dev:services": "docker compose --env-file .env -f infra/docker/docker-compose.dev.yml up -d --wait",
+    "dev:services:down": "docker compose --env-file .env -f infra/docker/docker-compose.dev.yml down",
+    "dev:services:reset": "node scripts/dev-services-reset.mjs",
+    "env:init": "node scripts/env-init.mjs",
+    "env:check": "pnpm --filter @setubandh/env check",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",

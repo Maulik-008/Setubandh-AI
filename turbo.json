@@ -29,6 +29,10 @@
       "dependsOn": ["build"],
       "outputs": ["playwright-report/**", "test-results/**"],
       "env": ["E2E_BROWSERS", "E2E_VIDEO", "PLAYWRIGHT_CHROMIUM_EXECUTABLE", "CI"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

@@ -68,6 +68,12 @@ export const boundaryPolicies = {
       from: { element: { types: ['app', 'module', 'package'] } },
       allow: { to: { element: { type: 'package' } } },
     },
+    {
+      from: { element: { type: 'app', captured: { app: '{web,admin}' } } },
+      disallow: { to: { element: { type: 'package', captured: { pkg: 'env' } } } },
+      message:
+        '@setubandh/env is server-only (secrets): the web and admin apps must not import it. Read public settings from import.meta.env instead.',
+    },
   ],
 };
 
