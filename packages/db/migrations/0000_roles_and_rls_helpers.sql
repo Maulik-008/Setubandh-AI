@@ -12,6 +12,9 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'orbit_app') THEN
     CREATE ROLE orbit_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOINHERIT;
   END IF;
+EXCEPTION
+  -- Roles are cluster-wide: another database's migration may create it at the same moment.
+  WHEN duplicate_object OR unique_violation THEN NULL;
 END
 $$;--> statement-breakpoint
 

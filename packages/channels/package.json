@@ -5,14 +5,21 @@
   "type": "module",
   "description": "Meta channel adapters: WhatsApp, Messenger, Instagram (send, parse, normalise).",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --project unit"
+    "test": "vitest run --project unit",
+    "build": "swc src -d dist --strip-leading-paths --config-file ../../.swcrc --ignore '**/*.test.ts'"
   },
   "devDependencies": {
     "@setubandh/config": "workspace:*"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

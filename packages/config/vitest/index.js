@@ -1,9 +1,17 @@
 // Shared Vitest project presets. Each workspace composes the projects it needs.
+// Workspace packages export TypeScript under the `source` condition (dist under `default`);
+// tests always run against source.
+const conditions = ['source', 'node', 'development|production'];
+const resolve = { conditions };
+// Node-side tests resolve through Vite's server (SSR) resolver, which has its own conditions.
+const ssr = { resolve: { conditions, externalConditions: ['source'] } };
 
 // Fast unit tests: no Docker, no browser. Excludes integration (.int.test) and browser (.browser.test) files.
 export function unitProject(extra = {}) {
   return {
     ...extra,
+    resolve: { ...resolve, ...extra.resolve },
+    ssr: { ...ssr, ...extra.ssr },
     test: {
       name: 'unit',
       include: ['test/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
@@ -18,6 +26,8 @@ export function unitProject(extra = {}) {
 export function integrationProject(extra = {}) {
   return {
     ...extra,
+    resolve: { ...resolve, ...extra.resolve },
+    ssr: { ...ssr, ...extra.ssr },
     test: {
       name: 'integration',
       include: ['test/**/*.int.test.ts', 'src/**/*.int.test.ts'],

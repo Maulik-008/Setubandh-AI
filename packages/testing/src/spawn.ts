@@ -43,16 +43,20 @@ export function spawnApp(options: {
 }): SpawnedApp {
   let out = '';
   let err = '';
-  const child = spawn(process.execPath, ['--import', options.swcRegister, options.entry], {
-    cwd: options.cwd,
-    env: {
-      PATH: process.env.PATH ?? '',
-      SWC_NODE_PROJECT: options.tsconfig,
-      SETUBANDH_ENV_FILE: join(mkdtempSync(join(tmpdir(), 'setubandh-boot-')), 'no.env'),
-      ...options.env,
+  const child = spawn(
+    process.execPath,
+    ['--conditions=source', '--import', options.swcRegister, options.entry],
+    {
+      cwd: options.cwd,
+      env: {
+        PATH: process.env.PATH ?? '',
+        SWC_NODE_PROJECT: options.tsconfig,
+        SETUBANDH_ENV_FILE: join(mkdtempSync(join(tmpdir(), 'setubandh-boot-')), 'no.env'),
+        ...options.env,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
     },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  );
   child.stdout.on('data', (chunk: Buffer) => (out += chunk.toString()));
   child.stderr.on('data', (chunk: Buffer) => (err += chunk.toString()));
   const exited = new Promise<number | null>((resolve) => child.on('exit', (code) => resolve(code)));

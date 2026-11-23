@@ -5,12 +5,16 @@
   "type": "module",
   "description": "Zod schemas, DTO types, enums, permission constants and error codes shared by API and UI.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --project unit"
+    "test": "vitest run --project unit",
+    "build": "swc src -d dist --strip-leading-paths --config-file ../../.swcrc --ignore '**/*.test.ts'"
   },
   "devDependencies": {
     "@setubandh/config": "workspace:*"
@@ -18,5 +22,8 @@
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",
     "zod": "^4.6.7"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
