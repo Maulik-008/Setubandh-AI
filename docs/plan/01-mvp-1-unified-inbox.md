@@ -412,6 +412,14 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 
 ### Week 1: Foundations
 
+> **Week 1 decisions (2026-11-23, agreed with the developer):**
+> - Server config lives in a new server-only package `packages/env` (`@setubandh/env`); web and admin may not import it (lint rule).
+> - Every variable in requirements §15.6 is required at boot from M1-02 on. `pnpm env:init` writes a local `.env` with safe placeholder values.
+> - M1-04 proves RLS on a test-only tenant table built with the policy helper; `tenants`, `users`, `memberships` stay platform scope as in §11.2. The first real RLS table comes with M1-12.
+> - If Astryx does not work with Vite 8, `apps/web` and `apps/admin` fall back to Vite 7 (recorded in an ADR).
+> - CI is **GitHub Actions** with images on GitHub Container Registry (the repo is on GitHub). The staging deploy job is written but stays off until a staging server exists (Q-08); "staging updates automatically" moves to a follow-up ticket.
+> - Week 1 tickets are delivered as separate commits on one branch.
+
 #### M1-01 Monorepo and tooling
 **Build:** pnpm workspaces + Turborepo with `apps/api`, `apps/worker`, `apps/web`, `apps/admin`, `packages/shared`, `packages/db`, `packages/channels`, `packages/ui`, `packages/config`. Strict TypeScript, ESLint with `eslint-plugin-boundaries` (module rules from requirements §4.5), Prettier, Vitest.
 **Acceptance:**
@@ -433,7 +441,8 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-01-monorepo-and-tooling/spec.md](../specs/m1-01-monorepo-and-tooling/spec.md)
 
 #### M1-02 Local stack and typed config
-**Build:** `docker-compose.dev.yml` with Postgres 18 + pgvector, Valkey 8.1, a local S3-compatible container (SeaweedFS), Mailpit. Config module validates every env var with Zod at boot.
+**Spec:** [docs/specs/m1-02-local-stack-and-config/spec.md](../specs/m1-02-local-stack-and-config/spec.md)
+**Build:** `docker-compose.dev.yml` with Postgres 18 + pgvector, Valkey 8.1, a local S3-compatible container (SeaweedFS), Mailpit. Config module (`packages/env`) validates every env var with Zod at boot; `pnpm env:init` creates a local `.env`.
 **Acceptance:**
 - [ ] `pnpm dev` starts all services and apps.
 - [ ] Missing env var stops boot with a message naming it.
@@ -459,9 +468,10 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [ ] Decision note in `docs/adr/` confirming token names and button variant mapping (answers requirements Q-12).
 
 #### M1-06 CI pipeline and Docker images
-**Build:** GitLab CI stages: install, lint, typecheck, unit, integration (Testcontainers), UI audit, build, Docker images tagged with commit SHA; deploy to staging on `main`.
+**Build:** GitHub Actions stages: install, lint, typecheck, unit, integration (Testcontainers), UI audit, build, E2E, Docker images tagged with commit SHA and pushed to GitHub Container Registry; staging deploy job present but disabled until a staging server exists (Q-08).
 **Acceptance:**
-- [ ] Pipeline green on `main`; images pushed; staging updates automatically.
+- [ ] Pipeline green on `main`; images pushed.
+- [ ] (Follow-up, needs a server) staging updates automatically.
 
 #### M1-07 Claude Code setup
 **Build:** root `CLAUDE.md` (requirements §17.2, plus “MVP 1 scope only: see docs/plan/01-mvp-1-unified-inbox.md”), `.claude/skills/paper-pastel-studio`, merged Astryx agent docs, `.claude/commands/ticket.md`, `docs/adr/`, `docs/runbooks/`.
