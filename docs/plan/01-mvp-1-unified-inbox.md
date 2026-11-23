@@ -502,11 +502,13 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [x] Unverified user gets `EMAIL_NOT_VERIFIED` when trying to connect a channel.
 
 #### M1-10 Optional two-step sign-in
+**Spec:** [docs/specs/m1-10-two-step-sign-in/spec.md](../specs/m1-10-two-step-sign-in/spec.md)
 **Build:** TOTP setup with QR, verify, 10 recovery codes, disable with password.
 **Acceptance:**
 - [ ] Login asks for the code when enabled; a recovery code works once.
 
 #### M1-11 Workspaces, members, invitations, roles
+**Spec:** [docs/specs/m1-11-workspaces-members-roles/spec.md](../specs/m1-11-workspaces-members-roles/spec.md)
 **Build:** create workspace (cap 3 per user), switcher, invitations (Admin / Agent), accept flow, change role, remove member, transfer ownership, `@RequirePermission` guard, `X-Workspace-Id` tenant guard, setting “Agents can see all conversations”.
 **Acceptance:**
 - [ ] Table-driven test: each role can call exactly the endpoints in Section 3.
