@@ -11,7 +11,7 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, createFastifyAdapter(), {
     bufferLogs: true,
   });
-  configureApp(app, env);
+  await configureApp(app, env);
   const port = Number(new URL(env.API_URL).port || 3000);
   await app.listen({ port, host: '0.0.0.0' });
   process.stdout.write(`api listening on ${env.API_URL}\n`);

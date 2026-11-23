@@ -3,4 +3,4 @@ export { POSTGRES_IMAGE, VALKEY_IMAGE, startTestInfra, type TestInfra } from './
 export { createTestApp, type CreateTestAppOptions } from './nest';
 export { testEnv } from './env';
 export { spawnApp, freePort, type SpawnedApp } from './spawn';
-export { createTestDatabase, TEST_APP_PASSWORD, type TestDatabase } from './database';
+export { adminQuery, createTestDatabase, TEST_APP_PASSWORD, type TestDatabase } from './database';

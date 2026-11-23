@@ -6,6 +6,7 @@ import { AppModule } from '../../src/app.module';
 import { configureApp, createFastifyAdapter } from '../../src/app.setup';
 import { ENV } from '../../src/core/env';
 import { ZodBody } from '../../src/core/validation';
+import { Public, RequireVerifiedEmail } from '../../src/modules/auth';
 
 export const echoSchema = z.object({
   name: z.string().min(1),
@@ -15,16 +16,26 @@ export const echoSchema = z.object({
 /** Test-only routes that exercise the global error filter and validation pipe. */
 @Controller('test')
 export class ProbeController {
+  @Public()
   @Get('app-error')
   appError(): never {
     throw new AppError('FORBIDDEN', { details: { permission: 'members.invite' } });
   }
 
+  @Public()
   @Get('crash')
   crash(): never {
     throw new Error('secret internal detail: db password is hunter2');
   }
 
+  /** Stands in for "connect a channel" (M1-16) in the EMAIL_NOT_VERIFIED acceptance test. */
+  @Get('verified-only')
+  @RequireVerifiedEmail()
+  verifiedOnly() {
+    return { ok: true };
+  }
+
+  @Public()
   @Post('echo')
   echo(@ZodBody(echoSchema) body: z.infer<typeof echoSchema>) {
     return body;

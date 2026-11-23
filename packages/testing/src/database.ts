@@ -56,3 +56,18 @@ export async function createTestDatabase(superuserUrl: string): Promise<TestData
     },
   };
 }
+
+/** Run SQL as a superuser in tests (to inspect rows the API wrote). */
+export async function adminQuery<T extends pg.QueryResultRow>(
+  connectionString: string,
+  text: string,
+  values: unknown[] = [],
+): Promise<T[]> {
+  const client = new pg.Client({ connectionString });
+  await client.connect();
+  try {
+    return (await client.query<T>(text, values)).rows;
+  } finally {
+    await client.end();
+  }
+}

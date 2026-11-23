@@ -1,7 +1,7 @@
 # M1-06: CI pipeline and Docker images
 
 Ticket: M1-06
-Status: ready-for-human (implemented 2026-11-23; first GitHub run to be confirmed)
+Status: ready-for-human (implemented 2026-11-23; CI run #5 green on GitHub, all jobs)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §9, week 1](../../plan/01-mvp-1-unified-inbox.md)
 Requirements: §15.2 (topology), §15.4 (pipeline); week 1 decisions (GitHub Actions, staging deploy off until a server exists)
 

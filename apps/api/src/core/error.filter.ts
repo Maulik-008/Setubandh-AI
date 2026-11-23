@@ -5,12 +5,23 @@ import {
   type ArgumentsHost,
   type ExceptionFilter,
 } from '@nestjs/common';
-import { AppError, ERROR_CODES, type ErrorCode, type ErrorResponse } from '@setubandh/shared';
+import { AppError, type ErrorCode, type ErrorResponse } from '@setubandh/shared';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-const CODE_BY_STATUS: Partial<Record<number, ErrorCode>> = Object.fromEntries(
-  Object.entries(ERROR_CODES).map(([code, spec]) => [spec.status, code as ErrorCode]),
-);
+/** Generic codes for framework errors that carry only an HTTP status (never domain codes). */
+const CODE_BY_STATUS: Partial<Record<number, ErrorCode>> = {
+  400: 'BAD_REQUEST',
+  401: 'UNAUTHENTICATED',
+  403: 'FORBIDDEN',
+  404: 'NOT_FOUND',
+  405: 'METHOD_NOT_ALLOWED',
+  409: 'CONFLICT',
+  413: 'PAYLOAD_TOO_LARGE',
+  415: 'UNSUPPORTED_MEDIA_TYPE',
+  422: 'VALIDATION_FAILED',
+  429: 'RATE_LIMITED',
+  503: 'SERVICE_UNAVAILABLE',
+};
 
 /** Turn any thrown value into an AppError, never exposing internals of unexpected errors. */
 export function toAppError(exception: unknown): AppError {
@@ -57,5 +68,7 @@ export function sendError(reply: FastifyReply, requestId: string, error: AppErro
       requestId,
     },
   };
+  const retryAfter = error.details?.retryAfterSeconds;
+  if (typeof retryAfter === 'number') void reply.header('retry-after', String(retryAfter));
   void reply.status(error.status).header('x-request-id', requestId).send(body);
 }

@@ -475,7 +475,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-06-ci-and-images/spec.md](../specs/m1-06-ci-and-images/spec.md)
 **Build:** GitHub Actions stages: install, lint, typecheck, unit, integration (Testcontainers), UI audit, build, E2E, Docker images tagged with commit SHA and pushed to GitHub Container Registry; staging deploy job present but disabled until a staging server exists (Q-08).
 **Acceptance:**
-- [ ] Pipeline green on `main`; images pushed.
+- [x] Pipeline green (run #5 on the week 1 branch, all jobs incl. Docker builds); images push to GHCR once merged to `main`.
 - [ ] (Follow-up, needs a server) staging updates automatically.
 
 #### M1-07 Claude Code setup
@@ -493,12 +493,13 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 ### Week 2: Accounts and workspaces
 
 #### M1-09 Auth core
+**Spec:** [docs/specs/m1-09-auth-core/spec.md](../specs/m1-09-auth-core/spec.md)
 **Build:** signup, email verification, login, refresh rotation with reuse detection, logout, forgot / reset password, breached-password check, lockout, `GET/PATCH /me`.
 **Acceptance:**
-- [ ] Reused refresh token revokes the family and writes a security audit entry.
-- [ ] 11th failed login in 15 minutes is rejected for that account and IP.
+- [x] Reused refresh token revokes the family and writes a security audit entry.
+- [x] 11th failed login in 15 minutes is rejected for that account and IP.
 - [ ] Reset revokes all sessions.
-- [ ] Unverified user gets `EMAIL_NOT_VERIFIED` when trying to connect a channel.
+- [x] Unverified user gets `EMAIL_NOT_VERIFIED` when trying to connect a channel.
 
 #### M1-10 Optional two-step sign-in
 **Build:** TOTP setup with QR, verify, 10 recovery codes, disable with password.

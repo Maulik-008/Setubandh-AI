@@ -18,6 +18,18 @@ export const ERROR_CODES = {
   UNSUPPORTED_MEDIA_TYPE: { status: 415, message: 'This content type is not supported.' },
   VALIDATION_FAILED: { status: 422, message: 'Some fields need attention.' },
   RATE_LIMITED: { status: 429, message: 'Too many requests. Wait a moment and try again.' },
+  INVALID_CREDENTIALS: { status: 401, message: 'Email or password is incorrect.' },
+  SESSION_REVOKED: { status: 401, message: 'Your session has ended. Please sign in again.' },
+  TOKEN_INVALID: {
+    status: 400,
+    message: 'This link is invalid or has expired. Request a new one.',
+  },
+  EMAIL_NOT_VERIFIED: {
+    status: 403,
+    message: 'Verify your email address first. Check your inbox for the link.',
+  },
+  PASSWORD_REJECTED: { status: 422, message: 'Choose a different password.' },
+  TOO_MANY_ATTEMPTS: { status: 429, message: 'Too many attempts. Wait 15 minutes and try again.' },
   INTERNAL: { status: 500, message: 'Something went wrong on our side. Please try again.' },
   SERVICE_UNAVAILABLE: {
     status: 503,

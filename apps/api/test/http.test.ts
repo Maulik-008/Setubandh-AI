@@ -83,6 +83,24 @@ describe('api error responses (requirements §12.1)', () => {
     expect(errorResponseSchema.parse(res.json()).error.code).toBe('BAD_REQUEST');
   });
 
+  it('maps framework errors to generic codes only (never a domain code like TOKEN_INVALID)', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/test/echo',
+      headers: { 'content-type': 'application/json' },
+      payload: '{',
+    });
+    expect(res.json<{ error: { code: string } }>().error.code).toBe('BAD_REQUEST');
+    const tooBig = await app.inject({
+      method: 'POST',
+      url: '/v1/test/echo',
+      headers: { 'content-type': 'application/json' },
+      payload: JSON.stringify({ name: 'x'.repeat(2 * 1024 * 1024), email: 'a@b.co' }),
+    });
+    expect(tooBig.statusCode).toBe(413);
+    expect(tooBig.json<{ error: { code: string } }>().error.code).toBe('PAYLOAD_TOO_LARGE');
+  });
+
   it('generates a UUIDv7 request id, returns it as a header and in the error body', async () => {
     const res = await app.inject({ method: 'GET', url: '/v1/does-not-exist' });
     const header = res.headers['x-request-id'];

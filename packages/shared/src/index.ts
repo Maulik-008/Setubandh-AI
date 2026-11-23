@@ -9,3 +9,4 @@ export {
   type ErrorResponse,
 } from './errors';
 export * from './enums';
+export * from './auth';

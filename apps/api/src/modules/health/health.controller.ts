@@ -1,7 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
+import { Public } from '../auth';
 import { HealthService } from './health.service';
 
 /** Infrastructure probes (outside /v1). No auth: they reveal only up/down. */
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(private readonly health: HealthService) {}
