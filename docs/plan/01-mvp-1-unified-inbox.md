@@ -531,6 +531,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [x] Every screen has a URL; browser back works.
 
 #### M1-14 Email service and file storage
+**Spec:** [docs/specs/m1-14-email-and-files/spec.md](../specs/m1-14-email-and-files/spec.md)
 **Build:** templated emails (verify, invite, reset, channel needs attention) via SMTP / provider, Mailpit locally; S3 signed upload / download (R2 in prod) with permission checks and `tenants/{id}/` prefixes.
 **Acceptance:**
 - [ ] All email links work end to end locally.
