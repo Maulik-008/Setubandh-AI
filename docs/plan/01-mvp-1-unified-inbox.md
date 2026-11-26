@@ -484,6 +484,7 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [x] `/ticket M1-09` loads the ticket and asks for a plan.
 
 #### M1-08 Meta platform setup (non-code, weeks 1 to 10)
+**How-to:** [docs/guides/meta-dev-setup.md](../guides/meta-dev-setup.md) (development mode, test assets, what to hand over).
 **Do:** everything in Section 5 in order.
 **Acceptance:**
 - [ ] Business verified; app created; Embedded Signup configuration ID stored in staging config.
