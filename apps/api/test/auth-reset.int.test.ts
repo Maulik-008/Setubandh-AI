@@ -117,6 +117,7 @@ describe('password reset, breached passwords, /me, auth rate limit (FR-AUTH-04, 
       emailVerified: false,
       locale: 'en',
       avatarUrl: null,
+      twoFactorEnabled: false,
     });
     const patched = await t.app.inject({
       method: 'PATCH',

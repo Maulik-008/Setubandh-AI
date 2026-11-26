@@ -1,7 +1,7 @@
 # M1-13: App shell, auth screens, settings shell
 
 Ticket: M1-13
-Status: ready-for-agent (plan approved 2026-11-26)
+Status: ready-for-human (implemented 2026-11-26 in three commits; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §4.1, §9 week 2](../../plan/01-mvp-1-unified-inbox.md)
 Requirements:
 - §13.2 frontend patterns
@@ -134,3 +134,24 @@ Also covered:
 - Change password while signed in (not in FR-AUTH for MVP 1).
 - Admin app screens (M1-30).
 - Hindi UI (P1).
+
+## Implementation notes (2026-11-26)
+
+- **Acceptance tests:**
+  - `apps/web/e2e/auth.spec.ts` and `apps/web/e2e/app.spec.ts`: an axe sweep of every auth and app screen in light and dark at 375 and 1280, with no sideways scrolling; deep links to every route; navigation, then `goBack()` through history; reload keeps the session.
+  - 34 browser component tests (auth, API client, shell, settings) in real Chromium with MSW.
+- **API additions this ticket needed:**
+  - CORS for `APP_URL` with credentials (the app and the API are on separate hosts, §4.4);
+  - `PATCH /v1/members/me { availability }`, plus availability in `GET /v1/workspace`;
+  - `twoFactorEnabled` in `GET /v1/me`.
+  All are covered by tests.
+- **The design-system page** now lives at `/dev/design-system`, in development builds and in the e2e build (`vite build --mode e2e`). Production builds leave it out. Its screenshot baselines are refreshed by CI.
+- **Wide tables** (members, invitations) scroll sideways inside their card on phones, rather than crushing their columns. The page itself never scrolls sideways.
+- **Time zones:** Chromium lists some zones under older names (Asia/Calcutta), so the saved zone is always offered as an option.
+- **Profile:** edits the name only. A locale selector waits for the Hindi UI (P1), so it does not offer a language the UI does not have yet.
+- **Channels:** the **Connect WhatsApp** button is shown disabled with the reason, until M1-16.
+- **Bundle:** the initial JS is about 230 KB gzipped, under the 250 KB budget for the inbox route (§13.6). M1-20 needs to watch this. `@setubandh/shared` pulls `zod-to-openapi` into the browser, so splitting it out is the first saving to make.
+- **Test infrastructure:**
+  - Vitest pre-bundles every dependency up front (`optimizeDeps.entries`), so a cold cache cannot load React twice.
+  - `find*` queries wait up to 5 s.
+  - Playwright never reuses a running server, so a leftover preview server cannot serve a stale build.

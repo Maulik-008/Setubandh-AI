@@ -526,8 +526,8 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-13-app-shell-auth-settings/spec.md](../specs/m1-13-app-shell-auth-settings/spec.md)
 **Build:** sidebar (Home, Inbox, Settings) with workspace switcher and connected channels list; top bar with notifications bell placeholder, theme toggle, profile menu with availability; mobile pill row; auth screens; Settings layout with Workspace, Members, Channels, Saved replies, Profile tabs.
 **Acceptance:**
-- [ ] `audit.py` and axe clean in both modes at 375 and 1280.
-- [ ] Every screen has a URL; browser back works.
+- [x] `audit.py` and axe clean in both modes at 375 and 1280.
+- [x] Every screen has a URL; browser back works.
 
 #### M1-14 Email service and file storage
 **Build:** templated emails (verify, invite, reset, channel needs attention) via SMTP / provider, Mailpit locally; S3 signed upload / download (R2 in prod) with permission checks and `tenants/{id}/` prefixes.

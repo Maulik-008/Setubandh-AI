@@ -12,6 +12,7 @@ const toMe = (u: UserRow): MeResponse => ({
   emailVerified: u.emailVerifiedAt !== null,
   locale: u.locale,
   avatarUrl: u.avatarUrl,
+  twoFactorEnabled: u.totpEnabled,
 });
 
 @Injectable()

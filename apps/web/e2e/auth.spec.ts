@@ -42,6 +42,14 @@ for (const colorScheme of COLOR_SCHEMES) {
       }
     });
 
+    test('the sign-in screen matches its baseline', async ({ page, mockApi }) => {
+      await mockApi();
+      await page.goto('/login');
+      await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
+      await page.evaluate(() => document.fonts.ready);
+      await expect(page).toHaveScreenshot(`login-${colorScheme}.png`, { fullPage: true });
+    });
+
     test('paints the paper canvas and ink text', async ({ page, mockApi, computedColor }) => {
       await mockApi();
       await page.goto('/login');
@@ -63,8 +71,8 @@ test('signed-out visitors are sent to sign in, and back works between auth scree
   mockApi,
 }) => {
   await mockApi();
-  await page.goto('/inbox');
-  await expect(page).toHaveURL(/\/login\?next=%2Finbox$/);
+  await page.goto('/settings/members');
+  await expect(page).toHaveURL(/\/login\?next=%2Fsettings%2Fmembers$/);
   await page.getByRole('link', { name: 'Forgot your password?' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Reset your password' })).toBeVisible();
   await expect(page).toHaveURL(/\/forgot$/);

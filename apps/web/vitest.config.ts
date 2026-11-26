@@ -17,6 +17,9 @@ export default defineConfig({
         plugins: [react(), tailwindcss(), msw({ mode: 'worker-only' })],
         // Same as vite.config.ts: workspace packages from source.
         resolve: { conditions: ['@setubandh/source', ...defaultClientConditions] },
+        // Pre-bundle every dependency the app imports before the first test. Otherwise Vite finds
+        // new ones mid-run, re-bundles, and the page ends up with two copies of React.
+        optimizeDeps: { entries: ['src/**/*.{ts,tsx}', '!src/**/*.test.{ts,tsx}'] },
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.tsx', 'test/**/*.browser.test.tsx'],

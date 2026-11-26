@@ -55,6 +55,56 @@ export async function mockSignedInApi(page: Page, options: { emailVerified?: boo
       }),
     ),
   );
+  await page.route('**/v1/me', (route) =>
+    route.fulfill(json({ ...user, locale: 'en', avatarUrl: null, twoFactorEnabled: false })),
+  );
+  await page.route('**/v1/members', (route) =>
+    route.fulfill(
+      json({
+        members: [
+          {
+            id: '01900000-0000-7000-8000-0000000000c1',
+            userId: ME.id,
+            name: ME.name,
+            email: ME.email,
+            role: 'owner',
+            joinedAt: '2026-11-02T09:00:00.000Z',
+          },
+          {
+            id: '01900000-0000-7000-8000-0000000000c2',
+            userId: '01900000-0000-7000-8000-000000000002',
+            name: 'Ravi Kumar',
+            email: 'ravi@example.com',
+            role: 'admin',
+            joinedAt: '2026-11-10T09:00:00.000Z',
+          },
+          {
+            id: '01900000-0000-7000-8000-0000000000c3',
+            userId: '01900000-0000-7000-8000-000000000003',
+            name: 'Neha Shah',
+            email: 'neha@example.com',
+            role: 'agent',
+            joinedAt: '2026-11-18T09:00:00.000Z',
+          },
+        ],
+      }),
+    ),
+  );
+  await page.route('**/v1/invitations', (route) =>
+    route.fulfill(
+      json({
+        invitations: [
+          {
+            id: '01900000-0000-7000-8000-0000000000d1',
+            email: 'arjun@example.com',
+            role: 'agent',
+            expiresAt: '2026-12-01T09:00:00.000Z',
+            createdAt: '2026-11-24T09:00:00.000Z',
+          },
+        ],
+      }),
+    ),
+  );
   await page.route('**/v1/workspace', (route) => {
     const ws = route.request().headers()['x-workspace-id'];
     const isA = ws === WS_A;

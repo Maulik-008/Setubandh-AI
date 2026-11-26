@@ -1,6 +1,12 @@
 import { LinkProvider } from '@astryxdesign/core/Link';
 import { forwardRef, type ComponentProps } from 'react';
-import { Link as RouterLink, Outlet, ScrollRestoration, type RouteObject } from 'react-router';
+import {
+  Navigate,
+  Link as RouterLink,
+  Outlet,
+  ScrollRestoration,
+  type RouteObject,
+} from 'react-router';
 import { RedirectIfSignedIn, RequireAuth } from '../auth/guards';
 import { AuthLayout } from '../pages/auth/AuthLayout';
 import { NotFoundPage } from '../pages/NotFoundPage';
@@ -71,6 +77,48 @@ export const routes: RouteObject[] = [
             children: [
               { index: true, ...page(() => import('../pages/app/HomePage'), 'HomePage') },
               { path: 'inbox', ...page(() => import('../pages/app/InboxPage'), 'InboxPage') },
+              {
+                path: 'settings',
+                ...page(() => import('../pages/settings/SettingsLayout'), 'SettingsLayout'),
+                children: [
+                  { index: true, element: <Navigate to="/settings/workspace" replace /> },
+                  {
+                    path: 'workspace',
+                    ...page(
+                      () => import('../pages/settings/WorkspaceSettingsPage'),
+                      'WorkspaceSettingsPage',
+                    ),
+                  },
+                  {
+                    path: 'members',
+                    ...page(
+                      () => import('../pages/settings/MembersSettingsPage'),
+                      'MembersSettingsPage',
+                    ),
+                  },
+                  {
+                    path: 'channels',
+                    ...page(
+                      () => import('../pages/settings/ChannelsSettingsPage'),
+                      'ChannelsSettingsPage',
+                    ),
+                  },
+                  {
+                    path: 'saved-replies',
+                    ...page(
+                      () => import('../pages/settings/SavedRepliesSettingsPage'),
+                      'SavedRepliesSettingsPage',
+                    ),
+                  },
+                  {
+                    path: 'profile',
+                    ...page(
+                      () => import('../pages/settings/ProfileSettingsPage'),
+                      'ProfileSettingsPage',
+                    ),
+                  },
+                ],
+              },
             ],
           },
         ],

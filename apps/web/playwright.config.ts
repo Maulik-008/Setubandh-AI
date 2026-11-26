@@ -65,7 +65,8 @@ export default defineConfig({
     // An e2e-mode build: production code plus the dev-only design-system page (M1-05 checks).
     command: `pnpm exec vite build --mode e2e --outDir dist-e2e && pnpm exec vite preview --outDir dist-e2e --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
-    reuseExistingServer: !isCI,
+    // Never reuse: a leftover server would serve a stale build.
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

@@ -43,8 +43,12 @@ First time on a machine: `pnpm install`, then `pnpm --filter @setubandh/web exec
 - **Tenant isolation suite (M1-12):** `packages/db/test/tenant-isolation.int.test.ts` checks every table with `tenant_id`, and `apps/api/test/isolation.int.test.ts` calls every workspace endpoint as another tenant. Both discover tables and routes on their own; a new table or route without a fixture fails with a message naming the fixture to add.
 - **API tests:** `const app = await createTestApp({ imports: [SomeModule] })`, then `await app.inject({ method, url, payload })`, and `await app.close()` in `afterAll`. Override providers with `createTestApp(meta, { override: (b) => b.overrideProvider(X).useValue(fake) })`.
 - **Component tests:** add API responses per test with `worker.use(http.get(url, () => HttpResponse.json(...)))`. Unhandled requests fail the test. Use `userEvent` from `vitest/browser` for real clicks and keys.
+  - `src/test/render.tsx` renders the real routes at any URL (`renderApp('/settings/members')`) and has `mockSession`, `mockWorkspaces` and `apiError`.
+  - Find elements with `findVisibleByRole` / `findVisibleText`: AppShell keeps a hidden copy of the side nav for the mobile drawer, and Astryx announcers copy messages, so the first match can be hidden.
+  - If a test ends while a request is in flight, wait for that request: a late request fails the next test as unhandled.
 - **E2E tests:**
-  - Use the `mockApi`, `expectAccessible` and (from M1-09) signed-in fixtures from `e2e/fixtures.ts`.
+  - Use `mockApi` (signed out), `mockSignedInApi(page)` (signed in, two workspaces, members) and `expectAccessible` from `e2e/fixtures.ts`.
+  - Playwright builds the app with `vite build --mode e2e` (production code plus the `/dev/design-system` page) and never reuses a running server.
   - Every page test runs in both colour modes (`COLOR_SCHEMES`) and calls `expectAccessible()`.
   - Screenshot only key screens.
 - **Screenshot baselines** live in `apps/web/e2e/__screenshots__/<project>/`. After an intended visual change, run `pnpm --filter @setubandh/web test:e2e:update` and review the new images in the diff. Baselines live under `__screenshots__/<platform>/` and the committed Linux ones are owned by CI: after an intended change, delete the affected baselines and run the CI workflow manually with **refresh-screenshots**, which commits new ones from CI's browsers. Other operating systems write their own local baselines.

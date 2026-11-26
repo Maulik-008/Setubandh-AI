@@ -59,6 +59,8 @@ export const meResponseSchema = z
     emailVerified: z.boolean(),
     locale: z.string(),
     avatarUrl: z.string().nullable(),
+    /** Two-step sign-in is on (FR-AUTH-05); the Profile screen shows set up or turn off. */
+    twoFactorEnabled: z.boolean(),
   })
   .openapi('MeResponse');
 
@@ -111,3 +113,4 @@ export const passwordConfirmRequestSchema = z
 export type MfaChallengeResponse = z.infer<typeof mfaChallengeResponseSchema>;
 export type TwoFactorLoginRequest = z.infer<typeof twoFactorLoginRequestSchema>;
 export type TwoFactorSetupResponse = z.infer<typeof twoFactorSetupResponseSchema>;
+export type RecoveryCodesResponse = z.infer<typeof recoveryCodesResponseSchema>;

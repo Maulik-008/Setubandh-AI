@@ -5,7 +5,8 @@
   },
   "common": {
     "loading": "Loading",
-    "unexpectedError": "Something went wrong on our side. Please try again."
+    "unexpectedError": "Something went wrong on our side. Please try again.",
+    "cancel": "Cancel"
   },
   "fields": {
     "email": "Email",
@@ -160,6 +161,118 @@
       "description": "We sent you a link when you signed up.",
       "resend": "Send a new link",
       "sent": "A new link is on its way to {{email}}."
+    }
+  },
+  "settings": {
+    "tabs": {
+      "workspace": "Workspace",
+      "members": "Members",
+      "channels": "Channels",
+      "saved-replies": "Saved replies",
+      "profile": "Profile"
+    },
+    "save": "Save changes",
+    "saved": "Changes saved.",
+    "loadFailed": "This list did not load. Try again.",
+    "workspace": {
+      "title": "Workspace profile",
+      "lead": "How your business appears to your team, and the time zone for dates and reports.",
+      "readOnly": "Only Owners and Admins can change these settings.",
+      "timezone": "Time zone",
+      "timezoneHelp": "Used for dates, business hours and the numbers on Home.",
+      "searchTimezone": "Search time zones",
+      "agentsSeeAll": "Agents can see all conversations",
+      "agentsSeeAllHelp": "Off: Agents see conversations assigned to them and the unassigned queue.",
+      "region": "Country {{country}} · Currency {{currency}}. Contact support to change these during the beta."
+    },
+    "members": {
+      "title": "Members",
+      "lead": "Everyone who can answer customers in this workspace.",
+      "invite": "Invite member",
+      "inviteTitle": "Invite a teammate",
+      "inviteLead": "They get an email with a link that is valid for 7 days.",
+      "sendInvite": "Send invitation",
+      "invited": "Invitation sent to {{email}}.",
+      "role": "Role",
+      "roleFor": "Role for {{name}}",
+      "agentHelp": "Answers conversations.",
+      "adminHelp": "Manages members, channels and settings.",
+      "member": "Member",
+      "joined": "Joined",
+      "actions": "Actions",
+      "remove": "Remove",
+      "removeTooltip": "Remove {{name}} from this workspace",
+      "removeTitle": "Remove {{name}}?",
+      "removeLead": "They lose access to this workspace on their next action. Their past replies stay in the history.",
+      "removeConfirm": "Remove member",
+      "removed": "{{name}} was removed.",
+      "roleChanged": "{{name}} is now {{role}}."
+    },
+    "invitations": {
+      "title": "Pending invitations",
+      "lead": "Links not used yet. A new link resets the 7 days.",
+      "none": "No pending invitations.",
+      "expires": "Expires",
+      "resend": "Resend",
+      "resendTooltip": "Send a new link to {{email}}",
+      "resent": "A new link is on its way to {{email}}.",
+      "revoke": "Revoke",
+      "revokeTooltip": "Cancel the invitation for {{email}}",
+      "revoked": "The invitation for {{email}} was cancelled."
+    },
+    "transfer": {
+      "title": "Transfer ownership",
+      "lead": "Make another member the Owner. You become an Admin. Each workspace has exactly one Owner.",
+      "newOwner": "New Owner",
+      "choose": "Choose a member",
+      "noCandidates": "Invite someone first.",
+      "action": "Transfer ownership",
+      "confirmTitle": "Make {{name}} the Owner?",
+      "confirmLead": "You will become an Admin and can no longer transfer ownership or remove Admins from the Owner role.",
+      "confirm": "Transfer ownership",
+      "done": "{{name}} is now the Owner."
+    },
+    "channels": {
+      "title": "Channels",
+      "lead": "WhatsApp, Instagram and Messenger accounts connected to this workspace.",
+      "emptyTitle": "No channels yet",
+      "comingSoon": "Channel connection arrives in the next release.",
+      "verifyFirst": "Confirm your email first: we sent you a link when you signed up.",
+      "connectWhatsApp": "Connect WhatsApp"
+    },
+    "savedReplies": {
+      "title": "Saved replies",
+      "lead": "Answers your team sends often, ready to insert with a few keystrokes.",
+      "emptyTitle": "No saved replies yet",
+      "emptyLead": "You can create them once the inbox opens. They will be shared with your team or kept to yourself."
+    },
+    "profile": {
+      "title": "Your profile",
+      "lead": "You sign in as {{email}}."
+    },
+    "twoFactor": {
+      "title": "Two-step sign-in",
+      "on": "On",
+      "off": "Off",
+      "onLead": "Signing in needs your password and a code from your authenticator app.",
+      "offLead": "Add a code from an authenticator app to your password, so a stolen password alone cannot open your account.",
+      "turnOn": "Set up two-step sign-in",
+      "scan": "Scan this code with an authenticator app (for example Google Authenticator or 1Password), then enter the 6-digit code it shows.",
+      "qrAlt": "QR code for your authenticator app",
+      "manual": "Or enter this key by hand:",
+      "confirm": "Turn on",
+      "enabled": "Two-step sign-in is on",
+      "codesLead": "Save these 10 recovery codes somewhere safe. Each works once if you lose your phone. They are shown only now.",
+      "codesLabel": "Recovery codes",
+      "copy": "Copy codes",
+      "copied": "Recovery codes copied.",
+      "download": "Download as text",
+      "saved": "I saved them",
+      "fileHeader": "Setubandh AI recovery codes. Each code works once.",
+      "passwordToTurnOff": "Password to turn it off",
+      "turnOff": "Turn off two-step sign-in",
+      "turnedOff": "Two-step sign-in is off.",
+      "wrongPassword": "That password is not correct."
     }
   }
 }

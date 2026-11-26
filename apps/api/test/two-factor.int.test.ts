@@ -162,12 +162,15 @@ describe('two-step sign-in (FR-AUTH-05)', () => {
     expect(row?.totp_secret_enc).not.toContain(totp.secret.base32);
   });
 
-  it('disables 2FA only with the right password', async () => {
+  it('disables 2FA only with the right password; /v1/me reports the state', async () => {
     const { email, auth } = await userWith2fa();
+    const me = () => t.app.inject({ method: 'GET', url: '/v1/me', headers: auth });
+    expect((await me()).json()).toMatchObject({ twoFactorEnabled: true });
     expect(
       (await post('/v1/me/2fa/disable', { password: 'wrong password here' }, auth)).statusCode,
     ).toBe(401);
     expect((await post('/v1/me/2fa/disable', { password: PASSWORD }, auth)).statusCode).toBe(204);
+    expect((await me()).json()).toMatchObject({ twoFactorEnabled: false });
     const login = await post('/v1/auth/login', { email, password: PASSWORD });
     expect(login.json().accessToken).toEqual(expect.any(String));
   });
