@@ -19,7 +19,10 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=secret,id=extra_ca,required=false \
     --mount=type=cache,id=pnpm-store,target=/pnpm/store --mount=type=cache,id=pnpm-meta,target=/root/.cache/pnpm pnpm fetch
 COPY . .
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store --mount=type=cache,id=pnpm-meta,target=/root/.cache/pnpm pnpm install --frozen-lockfile --offline
+# --prefer-offline, not --offline: pnpm fetch fills the store but not the metadata the lockfile
+# supply-chain policy check reads.
+RUN --mount=type=secret,id=extra_ca,required=false \
+    --mount=type=cache,id=pnpm-store,target=/pnpm/store --mount=type=cache,id=pnpm-meta,target=/root/.cache/pnpm pnpm install --frozen-lockfile --prefer-offline
 RUN pnpm exec turbo run build --filter=@setubandh/${APP}...
 
 FROM caddy:2-alpine AS runtime
