@@ -13,7 +13,7 @@ export default defineConfig({
       unitProject({ plugins }),
       integrationProject({
         plugins,
-        test: { globalSetup: ['../../packages/testing/src/global-setup.ts'] },
+        test: { globalSetup: ['../../packages/testing/src/global-setup-services.ts'] },
       }),
     ],
   },

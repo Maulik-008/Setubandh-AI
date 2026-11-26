@@ -6,7 +6,8 @@
   "description": "Test-only helpers: Testcontainers setup (Postgres 18 + pgvector, Valkey 8.1) and the NestJS Fastify test app. Never import from production code.",
   "exports": {
     ".": "./src/index.ts",
-    "./global-setup": "./src/global-setup.ts"
+    "./global-setup": "./src/global-setup.ts",
+    "./global-setup-services": "./src/global-setup-services.ts"
   },
   "scripts": {
     "lint": "eslint .",

@@ -11,6 +11,7 @@ import {
 import { CLOCK, type Clock } from '../../core/clock';
 import { ENV, type AppEnv } from '../../core/env';
 import { MailerService } from '../../core/mailer';
+import { invitation } from '../email';
 import { AuditService } from '../audit';
 import { AuthService, hashPassword, type IssuedSession, type RequestMeta } from '../auth';
 import type { WorkspaceContext } from './tenant.guard';
@@ -65,7 +66,7 @@ export class InvitationsService {
       expiresAt: this.expiry(),
       invitedBy: inviterId,
     });
-    await this.send(invite.email, ws.tenantId, inviterId, token);
+    await this.send(invite.email, ws.tenantId, inviterId, token, invite.role);
     await this.audit.record({
       tenantId: ws.tenantId,
       actor: { type: 'user', id: inviterId },
@@ -83,7 +84,7 @@ export class InvitationsService {
     if (!invite) throw new AppError('NOT_FOUND');
     const token = randomBytes(32).toString('base64url');
     await this.repo.renewInvitation(invite.id, hashToken(token), this.expiry());
-    await this.send(invite.email, ws.tenantId, inviterId, token);
+    await this.send(invite.email, ws.tenantId, inviterId, token, invite.role);
   }
 
   async revoke(
@@ -180,23 +181,26 @@ export class InvitationsService {
     return new Date(this.clock.now().getTime() + INVITATION_TTL_MS);
   }
 
-  private async send(email: string, tenantId: string, inviterId: string, token: string) {
+  private async send(
+    email: string,
+    tenantId: string,
+    inviterId: string,
+    token: string,
+    role: 'admin' | 'agent',
+  ) {
     const [tenant, inviter] = await Promise.all([
       this.repo.findTenant(tenantId),
       this.repo.findUser(inviterId),
     ]);
     const link = `${this.env.APP_URL}/invite?token=${token}`;
-    const who = inviter?.name ?? 'A teammate';
-    const where = tenant?.name ?? 'their workspace';
-    await this.mailer.send({
-      to: email,
-      subject: `${who} invited you to ${where} on Setubandh AI`,
-      text: `${who} invited you to join ${where} on Setubandh AI. Accept within 7 days: ${link}`,
-      html: `<p>${escapeHtml(who)} invited you to join <strong>${escapeHtml(where)}</strong> on Setubandh AI.</p><p><a href="${link}">Accept the invitation</a> (valid for 7 days).</p>`,
-    });
+    await this.mailer.send(
+      email,
+      invitation({
+        inviterName: inviter?.name ?? 'A teammate',
+        workspaceName: tenant?.name ?? 'their workspace',
+        role,
+        link,
+      }),
+    );
   }
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }

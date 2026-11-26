@@ -1,54 +1,83 @@
-import { Global, Inject, Injectable, Logger, Module } from '@nestjs/common';
-import { createTransport } from 'nodemailer';
+import {
+  Global,
+  Inject,
+  Injectable,
+  Logger,
+  Module,
+  type OnApplicationShutdown,
+} from '@nestjs/common';
+import { EMAIL_QUEUE, EMAIL_SEND_JOB, type EmailJob, type EmailTemplate } from '@setubandh/shared';
+import { Queue } from 'bullmq';
 import { ENV, type AppEnv } from './env';
 
-export interface MailMessage {
-  to: string;
-  subject: string;
-  text: string;
-  html?: string;
-}
+/** A rendered email for one recipient (the job the worker sends). */
+export type MailMessage = EmailJob;
 
-/** Where mail goes: SMTP in every environment (Mailpit locally); tests capture it instead. */
+/** Where mail goes: the `email` queue (the worker sends it over SMTP); tests capture it instead. */
 export interface MailTransport {
   send(message: MailMessage): Promise<void>;
 }
 
 export const MAIL_TRANSPORT = Symbol('MAIL_TRANSPORT');
 
-function smtpTransport(env: AppEnv): MailTransport {
-  const transporter = createTransport({
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
-    secure: env.SMTP_PORT === 465,
-    ...(env.SMTP_USER ? { auth: { user: env.SMTP_USER, pass: env.SMTP_PASS } } : {}),
-  });
-  return {
-    send: async (message) => {
-      await transporter.sendMail({ from: env.SMTP_FROM, ...message });
-    },
-  };
+/**
+ * Production transport: one job per email on the `email` queue. The worker sends it with 5
+ * attempts and exponential backoff, so a slow or failing mail server never slows a request.
+ * Jobs hold single-use links, so they are removed on completion and kept 1 day when failed.
+ */
+export class QueueMailTransport implements MailTransport, OnApplicationShutdown {
+  private queue: Queue | undefined;
+
+  constructor(private readonly redisUrl: string) {}
+
+  /** Connects on first use, so an API that sends no email never opens this connection. */
+  private get emailQueue(): Queue {
+    this.queue ??= new Queue(EMAIL_QUEUE, {
+      connection: { url: this.redisUrl, connectionName: 'setubandh-api-email' },
+    });
+    return this.queue;
+  }
+
+  async send(message: MailMessage): Promise<void> {
+    await this.emailQueue.add(EMAIL_SEND_JOB, message, {
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 5_000 },
+      removeOnComplete: true,
+      removeOnFail: { age: 24 * 3600 },
+    });
+  }
+
+  async onApplicationShutdown(): Promise<void> {
+    await this.queue?.close();
+  }
 }
 
-/**
- * Minimal mailer for M1-09 (verify and reset links). M1-14 adds templates and the full email
- * service. Logs never contain recipients' message bodies or links (rule 7).
- */
+/** Sends templated email. Logs name the template only: never recipient, subject or body (rule 7). */
 @Injectable()
 export class MailerService {
   private readonly logger = new Logger(MailerService.name);
 
   constructor(@Inject(MAIL_TRANSPORT) private readonly transport: MailTransport) {}
 
-  async send(message: MailMessage): Promise<void> {
-    await this.transport.send(message);
-    this.logger.log({ subject: message.subject }, 'Email sent');
+  async send(
+    to: string,
+    email: { template: EmailTemplate; subject: string; text: string; html: string },
+  ): Promise<void> {
+    await this.transport.send({ to, ...email });
+    this.logger.log({ template: email.template }, 'Email queued');
   }
 }
 
 @Global()
 @Module({
-  providers: [{ provide: MAIL_TRANSPORT, inject: [ENV], useFactory: smtpTransport }, MailerService],
+  providers: [
+    {
+      provide: MAIL_TRANSPORT,
+      inject: [ENV],
+      useFactory: (env: AppEnv) => new QueueMailTransport(env.REDIS_URL),
+    },
+    MailerService,
+  ],
   exports: [MailerService],
 })
 export class MailerModule {}

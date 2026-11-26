@@ -281,6 +281,9 @@ importers:
       '@setubandh/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      bullmq:
+        specifier: ^6.7.8
+        version: 6.7.8(ioredis@6.0.0(supports-color@7.2.0))(pg@8.23.1)
       fastify:
         specifier: 5.12.8
         version: 5.12.8
@@ -293,9 +296,6 @@ importers:
       nestjs-pino:
         specifier: ^5.3.2
         version: 5.3.2(@nestjs/common@12.6.0(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.6.0(@nestjs/common@12.6.0(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(reflect-metadata@0.2.2)(rxjs@7.8.2))(pino-http@11.0.0)(pino@10.4.0)(rxjs@7.8.2)
-      nodemailer:
-        specifier: 10.6.1
-        version: 10.6.1
       otpauth:
         specifier: 9.6.0
         version: 9.6.0
@@ -333,9 +333,6 @@ importers:
       '@swc/core':
         specifier: ^1.16.22
         version: 1.16.22
-      '@types/nodemailer':
-        specifier: ^8.0.2
-        version: 8.0.2
       '@types/qrcode':
         specifier: ^1.5.6
         version: 1.5.6
@@ -463,6 +460,9 @@ importers:
       nestjs-pino:
         specifier: ^5.3.2
         version: 5.3.2(@nestjs/common@12.6.0(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@12.6.0(@nestjs/common@12.6.0(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(reflect-metadata@0.2.2)(rxjs@7.8.2))(pino-http@11.0.0)(pino@10.4.0)(rxjs@7.8.2)
+      nodemailer:
+        specifier: 10.6.1
+        version: 10.6.1
       pino:
         specifier: ^10.4.0
         version: 10.4.0
@@ -491,6 +491,9 @@ importers:
       '@swc/core':
         specifier: ^1.16.22
         version: 1.16.22
+      '@types/nodemailer':
+        specifier: ^8.0.2
+        version: 8.0.2
       unplugin-swc:
         specifier: ^2.0.0
         version: 2.0.0(@swc/core@1.16.22)(esbuild@0.28.2)(rolldown@1.2.19)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))

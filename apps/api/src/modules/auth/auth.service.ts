@@ -12,6 +12,7 @@ import type { Redis } from 'ioredis';
 import { CLOCK, type Clock } from '../../core/clock';
 import { ENV, type AppEnv } from '../../core/env';
 import { MailerService } from '../../core/mailer';
+import { existingAccount, resetPassword, verifyEmail } from '../email';
 import { VALKEY } from '../../core/valkey';
 import { AuthRepository, type RequestMeta } from './auth.repository';
 import { BREACHED_PASSWORDS, type BreachedPasswordChecker } from './breached-passwords';
@@ -64,11 +65,13 @@ export class AuthService {
     await this.assertPasswordAllowed(input.password);
     const existing = await this.repo.findUserByEmail(input.email);
     if (existing) {
-      await this.mailer.send({
-        to: input.email,
-        subject: 'You already have a Setubandh AI account',
-        text: `Someone tried to sign up with this email. If it was you, sign in at ${this.env.APP_URL}/login or reset your password at ${this.env.APP_URL}/forgot. If not, you can ignore this email.`,
-      });
+      await this.mailer.send(
+        input.email,
+        existingAccount({
+          loginUrl: `${this.env.APP_URL}/login`,
+          forgotUrl: `${this.env.APP_URL}/forgot`,
+        }),
+      );
       return;
     }
     const defaults = workspaceDefaults(input.timezone);
@@ -83,7 +86,7 @@ export class AuthService {
       },
     });
     await this.repo.recordSecurityEvent('signup', user.id, meta);
-    await this.sendVerification(user.id, user.email);
+    await this.sendVerification(user.id, user.email, user.name);
   }
 
   async login(input: LoginRequest, meta: RequestMeta): Promise<IssuedSession | PendingMfa> {
@@ -226,7 +229,7 @@ export class AuthService {
   /** Always "accepted": never reveals whether the email has an unverified account. */
   async resendVerification(email: string): Promise<void> {
     const user = await this.repo.findUserByEmail(email);
-    if (user && !user.emailVerifiedAt) await this.sendVerification(user.id, user.email);
+    if (user && !user.emailVerifiedAt) await this.sendVerification(user.id, user.email, user.name);
   }
 
   /** Always "accepted": never reveals whether an account exists (FR-AUTH-04). */
@@ -242,12 +245,7 @@ export class AuthService {
     });
     await this.repo.recordSecurityEvent('password_reset_requested', user.id, meta);
     const link = `${this.env.APP_URL}/reset?token=${token}`;
-    await this.mailer.send({
-      to: user.email,
-      subject: 'Reset your Setubandh AI password',
-      text: `Reset your password within 1 hour: ${link}\nIf you did not ask for this, ignore this email; your password stays the same.`,
-      html: `<p><a href="${link}">Reset your password</a> (valid for 1 hour, once).</p><p>If you did not ask for this, ignore this email.</p>`,
-    });
+    await this.mailer.send(user.email, resetPassword({ link }));
   }
 
   /** Single-use link; sets the new password and signs the user out everywhere (FR-AUTH-04). */
@@ -274,7 +272,7 @@ export class AuthService {
     }
   }
 
-  private async sendVerification(userId: string, email: string): Promise<void> {
+  private async sendVerification(userId: string, email: string, name: string): Promise<void> {
     const token = this.tokens.opaqueToken();
     await this.repo.insertEmailToken({
       userId,
@@ -283,12 +281,7 @@ export class AuthService {
       expiresAt: new Date(this.clock.now().getTime() + VERIFY_LINK_TTL_MS),
     });
     const link = `${this.env.APP_URL}/verify?token=${token}`;
-    await this.mailer.send({
-      to: email,
-      subject: 'Verify your email for Setubandh AI',
-      text: `Welcome to Setubandh AI. Verify your email within 24 hours: ${link}`,
-      html: `<p>Welcome to Setubandh AI.</p><p><a href="${link}">Verify your email</a> (valid for 24 hours).</p>`,
-    });
+    await this.mailer.send(email, verifyEmail({ name, link }));
   }
 
   private async issue(
