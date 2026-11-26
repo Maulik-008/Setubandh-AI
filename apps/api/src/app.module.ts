@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth';
 import { TenancyModule } from './modules/tenancy';
 import { UsersModule } from './modules/users';
 import { ExampleModule } from './modules/example';
+import { FilesModule } from './modules/files';
 import { HealthModule } from './modules/health';
 
 /** Root module of the api app. Feature modules are added here as tickets land. */
@@ -27,6 +28,7 @@ import { HealthModule } from './modules/health';
     AuthModule,
     TenancyModule,
     UsersModule,
+    FilesModule,
     HealthModule,
     ExampleModule,
   ],

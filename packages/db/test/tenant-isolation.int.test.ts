@@ -195,6 +195,8 @@ const PLATFORM_TABLES_WITH_TENANT_ID = ['memberships', 'invitations', 'platform_
 const SEED_ROW: Record<string, (t: string) => string> = {
   rls_probe: (t) =>
     `INSERT INTO rls_probe (id, tenant_id, body) VALUES ('${uuidv7()}', '${t}', 'seed')`,
+  files: (t) =>
+    `INSERT INTO files (id, tenant_id, purpose, storage_key, filename, mime, size_bytes) VALUES ('${uuidv7()}', '${t}', 'attachment', 'tenants/${t}/attachment/seed-${uuidv7()}', 'seed.pdf', 'application/pdf', 10)`,
   audit_logs: (t) =>
     `INSERT INTO audit_logs (id, tenant_id, actor_type, action) VALUES ('${uuidv7()}', '${t}', 'system', 'test.seed')`,
 };

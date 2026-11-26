@@ -50,6 +50,20 @@
       "when": 1795669263914,
       "tag": "0006_security_events_types",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795686570063,
+      "tag": "0007_files",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795686570942,
+      "tag": "0008_files_rls",
+      "breakpoints": true
     }
   ]
 }

@@ -28,6 +28,8 @@ describe('local dev stack (infra/docker/docker-compose.dev.yml)', () => {
     S3_ACCESS_KEY: credentials.accessKeyId,
     S3_SECRET_KEY: credentials.secretAccessKey,
     S3_BUCKET: bucket,
+    // The S3 gateway only allows the web app's origin (CORS for signed browser uploads, M1-14).
+    APP_URL: 'http://localhost:5173',
   };
   const endpoint = (service: string, port: number) => {
     const container = stack.getContainer(`${service}-1`);

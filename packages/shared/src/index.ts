@@ -14,3 +14,4 @@ export * from './permissions';
 export * from './workspaces';
 export * from './audit';
 export * from './jobs';
+export * from './files';

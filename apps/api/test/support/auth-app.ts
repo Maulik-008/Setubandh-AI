@@ -56,7 +56,17 @@ export async function bootAuthApi(): Promise<AuthTestApp> {
   const checker: BreachedPasswordChecker = {
     isBreached: (password) => Promise.resolve(breached.has(password)),
   };
-  const app = await bootApi({ DATABASE_URL: db.appUrl, REDIS_URL: inject('valkeyUrl') }, (b) =>
+  const s3 = inject('s3');
+  const env = {
+    DATABASE_URL: db.appUrl,
+    REDIS_URL: inject('valkeyUrl'),
+    // Real S3 (SeaweedFS) for the files module.
+    S3_ENDPOINT: s3.endpoint,
+    S3_BUCKET: s3.bucket,
+    S3_ACCESS_KEY: s3.accessKey,
+    S3_SECRET_KEY: s3.secretKey,
+  };
+  const app = await bootApi(env, (b) =>
     b
       .overrideProvider(CLOCK)
       .useValue(clock)

@@ -5,7 +5,7 @@ import { defineConfig } from 'drizzle-kit';
 export default defineConfig({
   dialect: 'postgresql',
   // audit.ts is excluded: its partitioned tables come from the hand-written migration 0005.
-  schema: ['./src/schema/platform.ts', './src/schema/auth.ts'],
+  schema: ['./src/schema/platform.ts', './src/schema/auth.ts', './src/schema/files.ts'],
   out: './migrations',
   strict: true,
   verbose: true,

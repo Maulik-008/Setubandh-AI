@@ -19,6 +19,7 @@ interface Tenant {
   workspaceId: string;
   memberId: string; // a non-owner member
   invitationId: string; // an open invitation
+  fileId: string; // a file (pending: B must not even learn it exists)
 }
 
 /**
@@ -32,6 +33,8 @@ const CROSS_TENANT_FIXTURES: Record<string, Fixture> = {
   'POST /v1/invitations/:id/resend': (a) => ({ params: { id: a.invitationId } }),
   'DELETE /v1/invitations/:id': (a) => ({ params: { id: a.invitationId } }),
   'POST /v1/workspace/transfer-ownership': (a) => ({ body: { memberId: a.memberId } }),
+  'GET /v1/files/:id': (a) => ({ params: { id: a.fileId } }),
+  'POST /v1/files/:id/complete': (a) => ({ params: { id: a.fileId } }),
 };
 
 const key = (r: RouteInfo) => `${r.method} ${r.path}`;
@@ -103,7 +106,15 @@ describe('tenant isolation suite: every workspace endpoint (requirements §5.2)'
         role: 'agent',
       })
     ).json<{ id: string }>().id;
-    return { owner, workspaceId, memberId, invitationId };
+    const fileId = (
+      await call('POST', '/v1/files/upload-url', owner, workspaceId, {
+        purpose: 'attachment',
+        filename: 'secret.pdf',
+        mime: 'application/pdf',
+        sizeBytes: 10,
+      })
+    ).json<{ fileId: string }>().fileId;
+    return { owner, workspaceId, memberId, invitationId, fileId };
   }
 
   beforeAll(async () => {
@@ -150,7 +161,14 @@ describe('tenant isolation suite: every workspace endpoint (requirements §5.2)'
   });
 
   it("never returns A's identifiers from any readable endpoint called in B", async () => {
-    const secrets = [a.workspaceId, a.memberId, a.invitationId, a.owner.userId, a.owner.email];
+    const secrets = [
+      a.workspaceId,
+      a.memberId,
+      a.invitationId,
+      a.fileId,
+      a.owner.userId,
+      a.owner.email,
+    ];
     const readable = routes.filter((r) => r.method === 'GET' && !r.path.includes(':'));
     expect(readable.length).toBeGreaterThan(0);
     for (const route of readable) {

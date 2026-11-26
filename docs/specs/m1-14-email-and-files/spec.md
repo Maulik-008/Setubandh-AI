@@ -1,7 +1,7 @@
 # M1-14: Email service and file storage
 
 Ticket: M1-14
-Status: ready-for-agent (plan approved 2026-11-26)
+Status: ready-for-human (implemented 2026-11-26 in two commits; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §9, week 2](../../plan/01-mvp-1-unified-inbox.md)
 Requirements:
 - P1-08 (files module: signed upload and download with permission checks; "a signed URL from tenant A cannot be issued for tenant B's file");
@@ -81,3 +81,15 @@ Also covered:
 - Email digests and the notification centre (M1-29, M6).
 - A choice of email provider and domain setup: SPF, DKIM and DMARC, recorded in the deploy notes with M1-34.
 - Upload UI.
+
+## Implementation notes (2026-11-26)
+
+- **Acceptance tests:**
+  - `apps/api/test/email-links.int.test.ts`: the real API queues each email, the worker runs as its own process and sends it over SMTP to Mailpit, and the test follows each link in Mailpit (verify, reset, invite), plus the duplicate-signup notice. It also checks that the worker log holds the template but no address or subject.
+  - `apps/api/test/files.int.test.ts`: cross-tenant check on real SeaweedFS and real RLS, plus upload, completion, limits, a pending file, and a size mismatch.
+  - The isolation suite asked by name for fixtures for the two new `:id` routes; they now cover `files`.
+- **Real bug found by the integration test:** recent AWS SDK versions sign a CRC32 of an empty body into presigned PUTs, so every real browser upload failed with `BadDigest`. The client now uses `requestChecksumCalculation: 'WHEN_REQUIRED'`, and the runbook records why.
+- **Download names:** names are served with an ASCII fallback plus the UTF-8 name (RFC 6266). A property test shows no name can break out of the quoted value.
+- **Local CORS:** SeaweedFS allows every origin by default. The dev compose now allows only `APP_URL`, so local behaves like R2 with bucket CORS (`docs/runbooks/storage-and-email-setup.md`). This replaces the planned change to `s3/create-bucket.sh`.
+- **SMTP:** the API no longer depends on `nodemailer`; only the worker sends.
+- **Test harness:** `global-setup-services` (API integration tests only) adds Mailpit and SeaweedFS containers.
