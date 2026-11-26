@@ -36,19 +36,40 @@ describe('local dev stack (infra/docker/docker-compose.dev.yml)', () => {
     return { host: container.getHost(), port: container.getMappedPort(port) };
   };
 
-  beforeAll(async () => {
-    stack = await new DockerComposeEnvironment(composeDir, [
-      'docker-compose.dev.yml',
-      'docker-compose.test.yml',
-    ])
+  const compose = () =>
+    new DockerComposeEnvironment(composeDir, ['docker-compose.dev.yml', 'docker-compose.test.yml'])
       .withProjectName(projectName)
       .withEnvironment(composeEnv)
       .withProfiles('init')
       .withWaitStrategy('s3-init-1', Wait.forOneShotStartup())
       .withDefaultWaitStrategy(Wait.forHealthCheck())
-      .withStartupTimeout(180_000)
-      .up();
-  }, 240_000);
+      .withStartupTimeout(180_000);
+
+  beforeAll(async () => {
+    try {
+      stack = await compose().up();
+    } catch (error) {
+      // Docker can hand the same random host port to two containers started at the same moment
+      // (other test packages start theirs in parallel). Clean up and try once more.
+      if (!String(error).includes('address already in use')) throw error;
+      spawnSync(
+        'docker',
+        [
+          'compose',
+          '-p',
+          projectName,
+          '-f',
+          'docker-compose.dev.yml',
+          '-f',
+          'docker-compose.test.yml',
+          'down',
+          '-v',
+        ],
+        { cwd: composeDir, env: { ...process.env, ...composeEnv } },
+      );
+      stack = await compose().up();
+    }
+  }, 420_000);
 
   afterAll(async () => {
     await stack?.down({ removeVolumes: true });
