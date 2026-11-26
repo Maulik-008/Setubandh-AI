@@ -516,12 +516,14 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 - [x] A user in two workspaces only sees data of the active one.
 
 #### M1-12 Tenant isolation suite and audit log
+**Spec:** [docs/specs/m1-12-isolation-suite-and-audit/spec.md](../specs/m1-12-isolation-suite-and-audit/spec.md)
 **Build:** isolation suite (two seeded tenants, every repository and endpoint asserted); lint rule against raw pool use; tenant and platform audit services with append-only grants.
 **Acceptance:**
 - [ ] Suite runs in CI on every merge and fails if a new tenant table lacks RLS.
 - [ ] Update / delete on audit tables is denied for `orbit_app`.
 
 #### M1-13 App shell, auth screens, settings shell
+**Spec:** [docs/specs/m1-13-app-shell-auth-settings/spec.md](../specs/m1-13-app-shell-auth-settings/spec.md)
 **Build:** sidebar (Home, Inbox, Settings) with workspace switcher and connected channels list; top bar with notifications bell placeholder, theme toggle, profile menu with availability; mobile pill row; auth screens; Settings layout with Workspace, Members, Channels, Saved replies, Profile tabs.
 **Acceptance:**
 - [ ] `audit.py` and axe clean in both modes at 375 and 1280.
