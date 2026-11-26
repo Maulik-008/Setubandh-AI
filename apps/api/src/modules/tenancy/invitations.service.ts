@@ -185,7 +185,7 @@ export class InvitationsService {
       this.repo.findTenant(tenantId),
       this.repo.findUser(inviterId),
     ]);
-    const link = `${this.env.APP_URL}/accept-invite?token=${token}`;
+    const link = `${this.env.APP_URL}/invite?token=${token}`;
     const who = inviter?.name ?? 'A teammate';
     const where = tenant?.name ?? 'their workspace';
     await this.mailer.send({

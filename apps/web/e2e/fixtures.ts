@@ -6,7 +6,7 @@ export const COLOR_SCHEMES = ['light', 'dark'] as const;
 interface Fixtures {
   /** Run axe on the current page and fail on any serious or critical violation (requirements §16). */
   expectAccessible: (options?: { include?: string; exclude?: string[] }) => Promise<void>;
-  /** Mock the API health check so pages render deterministically without a backend. */
+  /** Mock the API so pages render deterministically without a backend (signed out by default). */
   mockApi: (page?: Page) => Promise<void>;
   /** What the browser computes for a CSS colour (e.g. `hsl(222 20% 12%)`), to compare with computed styles. */
   computedColor: (css: string) => Promise<string>;
@@ -44,8 +44,17 @@ export const test = base.extend<Fixtures>({
   },
   mockApi: async ({ page }, use) => {
     await use(async (target = page) => {
-      await target.route('**/api/health/ready', (route) =>
-        route.fulfill({ status: 200, json: { status: 'ok' } }),
+      await target.route('**/v1/auth/refresh', (route) =>
+        route.fulfill({
+          status: 401,
+          json: {
+            error: {
+              code: 'SESSION_REVOKED',
+              message: 'Your session has ended.',
+              requestId: 'e2e',
+            },
+          },
+        }),
       );
     });
   },

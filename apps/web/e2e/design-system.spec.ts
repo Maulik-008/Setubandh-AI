@@ -12,8 +12,8 @@ for (const colorScheme of COLOR_SCHEMES) {
 
     test.beforeEach(async ({ page, mockApi }) => {
       await mockApi();
-      await page.goto('/');
-      await expect(page.getByText('API is reachable.')).toBeVisible();
+      await page.goto('/dev/design-system');
+      await expect(page.getByRole('heading', { level: 1, name: 'Setubandh AI' })).toBeVisible();
       await page.evaluate(() => document.fonts.ready);
     });
 
@@ -81,7 +81,7 @@ for (const colorScheme of COLOR_SCHEMES) {
 
 test('the dialog validates on submit, then confirms with a toast', async ({ page, mockApi }) => {
   await mockApi();
-  await page.goto('/');
+  await page.goto('/dev/design-system');
   await page.getByRole('button', { name: 'Add a channel' }).click();
   const dialog = page.getByRole('dialog', { name: 'Add a channel' });
   await dialog.getByRole('button', { name: 'Connect channel' }).click();
@@ -95,7 +95,7 @@ test('the dialog validates on submit, then confirms with a toast', async ({ page
 
 test('a removal can be undone from the toast', async ({ page, mockApi }) => {
   await mockApi();
-  await page.goto('/');
+  await page.goto('/dev/design-system');
   await page.getByRole('button', { name: 'Remove Instagram' }).click();
   await expect(page.getByText('Instagram removed from this workspace.').first()).toBeVisible();
   await page.getByRole('button', { name: 'Undo' }).click();
@@ -104,7 +104,7 @@ test('a removal can be undone from the toast', async ({ page, mockApi }) => {
 
 test('the empty state offers the next step', async ({ page, mockApi }) => {
   await mockApi();
-  await page.goto('/');
+  await page.goto('/dev/design-system');
   await page.getByRole('radio', { name: 'Empty' }).check();
   await expect(page.getByRole('heading', { name: 'No conversations yet' })).toBeVisible();
   await page.getByRole('button', { name: 'Connect a channel' }).click();

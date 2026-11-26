@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
 import { msw } from 'msw/vite';
+import { defaultClientConditions } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { unitProject } from '@setubandh/config/vitest';
 
@@ -14,6 +15,8 @@ export default defineConfig({
       unitProject({ plugins: [react()] }),
       {
         plugins: [react(), tailwindcss(), msw({ mode: 'worker-only' })],
+        // Same as vite.config.ts: workspace packages from source.
+        resolve: { conditions: ['@setubandh/source', ...defaultClientConditions] },
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.tsx', 'test/**/*.browser.test.tsx'],

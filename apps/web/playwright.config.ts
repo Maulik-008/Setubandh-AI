@@ -62,9 +62,10 @@ export default defineConfig({
     { name: `${browser}-phone`, use: phone[browser] },
   ]),
   webServer: {
-    command: `pnpm exec vite preview --port ${PORT} --strictPort`,
+    // An e2e-mode build: production code plus the dev-only design-system page (M1-05 checks).
+    command: `pnpm exec vite build --mode e2e --outDir dist-e2e && pnpm exec vite preview --outDir dist-e2e --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !isCI,
-    timeout: 60_000,
+    timeout: 120_000,
   },
 });

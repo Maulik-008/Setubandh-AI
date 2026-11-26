@@ -17,11 +17,18 @@
   },
   "dependencies": {
     "@astryxdesign/core": "0.7.17",
+    "@hookform/resolvers": "5.9.2",
+    "@setubandh/shared": "workspace:*",
     "@setubandh/ui": "workspace:*",
     "@stylexjs/stylex": "0.19.2",
+    "@tanstack/react-query": "5.108.4",
+    "i18next": "27.2.7",
     "lucide-react": "1.77.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-hook-form": "7.92.0",
+    "react-i18next": "18.0.3",
+    "react-router": "7.18.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

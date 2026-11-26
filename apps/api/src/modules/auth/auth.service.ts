@@ -67,7 +67,7 @@ export class AuthService {
       await this.mailer.send({
         to: input.email,
         subject: 'You already have a Setubandh AI account',
-        text: `Someone tried to sign up with this email. If it was you, sign in at ${this.env.APP_URL}/login or reset your password at ${this.env.APP_URL}/forgot-password. If not, you can ignore this email.`,
+        text: `Someone tried to sign up with this email. If it was you, sign in at ${this.env.APP_URL}/login or reset your password at ${this.env.APP_URL}/forgot. If not, you can ignore this email.`,
       });
       return;
     }
@@ -241,7 +241,7 @@ export class AuthService {
       expiresAt: new Date(this.clock.now().getTime() + RESET_LINK_TTL_MS),
     });
     await this.repo.recordSecurityEvent('password_reset_requested', user.id, meta);
-    const link = `${this.env.APP_URL}/reset-password?token=${token}`;
+    const link = `${this.env.APP_URL}/reset?token=${token}`;
     await this.mailer.send({
       to: user.email,
       subject: 'Reset your Setubandh AI password',
@@ -282,7 +282,7 @@ export class AuthService {
       tokenHash: this.tokens.hashEmailToken(token),
       expiresAt: new Date(this.clock.now().getTime() + VERIFY_LINK_TTL_MS),
     });
-    const link = `${this.env.APP_URL}/verify-email?token=${token}`;
+    const link = `${this.env.APP_URL}/verify?token=${token}`;
     await this.mailer.send({
       to: email,
       subject: 'Verify your email for Setubandh AI',

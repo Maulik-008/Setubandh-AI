@@ -1,0 +1,124 @@
+{
+  "brand": {
+    "name": "Setubandh AI",
+    "home": "Setubandh AI home"
+  },
+  "common": {
+    "loading": "Loading",
+    "unexpectedError": "Something went wrong on our side. Please try again."
+  },
+  "fields": {
+    "email": "Email",
+    "workEmail": "Work email",
+    "password": "Password",
+    "newPassword": "New password",
+    "choosePassword": "Choose a password",
+    "passwordRules": "At least 10 characters. Avoid passwords used on other sites.",
+    "name": "Your name",
+    "businessName": "Business name",
+    "authCode": "6-digit code",
+    "recoveryCode": "Recovery code"
+  },
+  "auth": {
+    "backToLogin": "Back to sign in",
+    "login": {
+      "title": "Sign in",
+      "lead": "Welcome back. Your conversations are waiting.",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "noAccount": "New to Setubandh AI?",
+      "locked": "Too many attempts. Wait {{minutes}} minutes and try again.",
+      "createAccount": "Create an account"
+    },
+    "twoFactor": {
+      "title": "Two-step sign-in",
+      "lead": "Enter the 6-digit code from your authenticator app.",
+      "leadRecovery": "Enter one of the recovery codes you saved when you turned on two-step sign-in.",
+      "submit": "Verify and sign in",
+      "useRecovery": "Use a recovery code instead",
+      "useCode": "Use the authenticator app instead",
+      "failed": "That code did not work. Sign in again to get a new one."
+    },
+    "signup": {
+      "title": "Create your account",
+      "lead": "One inbox for WhatsApp, Instagram and Messenger. Free during the beta.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "checkInbox": {
+      "title": "Check your inbox",
+      "verify": "If {{email}} can use this, we sent a link to confirm it. It is valid for 24 hours.",
+      "reset": "If an account uses {{email}}, we sent a link to choose a new password. It is valid for 1 hour.",
+      "backToLogin": "Back to sign in"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "lead": "Enter the email you sign in with and we will send you a link.",
+      "submit": "Send reset link"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "lead": "After this, every device signed in to your account is signed out.",
+      "submit": "Save new password",
+      "doneTitle": "Password changed",
+      "done": "Your new password is ready. Every device was signed out, so sign in again.",
+      "signIn": "Sign in"
+    },
+    "verify": {
+      "title": "Confirming your email",
+      "checking": "Checking your link",
+      "doneTitle": "Email confirmed",
+      "done": "You can now connect your channels.",
+      "continue": "Continue to Setubandh AI",
+      "resend": "Send a new link"
+    },
+    "invite": {
+      "title": "Join your team",
+      "lead": "You were invited to a workspace on Setubandh AI.",
+      "signedInAs": "You are signed in as {{email}}.",
+      "join": "Join workspace",
+      "otherEmail": "Invitations work only for the email they were sent to.",
+      "switchAccount": "Sign in as the invited email",
+      "create": "Create account and join",
+      "haveAccount": "Already have an account?",
+      "signInToJoin": "Sign in to join"
+    },
+    "linkProblem": {
+      "title": "This link does not work",
+      "reset": "The reset link is missing, used or expired. Ask for a new one.",
+      "verify": "The link is missing, used or expired. Enter your email and we will send a new one.",
+      "invite": "The invitation link is missing, used or expired. Ask the person who invited you to send it again.",
+      "newReset": "Ask for a new link"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "inbox": "Inbox",
+    "settings": "Settings"
+  },
+  "home": {
+    "empty": {
+      "title": "Your inbox starts with a channel",
+      "description": "Connecting WhatsApp, Instagram and Messenger arrives in the next release. Meanwhile, invite the people who will answer customers.",
+      "invite": "Invite teammates"
+    }
+  },
+  "inbox": {
+    "empty": {
+      "title": "No conversations yet",
+      "description": "Messages from your connected channels appear here, newest first.",
+      "channels": "See channels"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The address may be mistyped, or the page has moved.",
+    "home": "Go to Home"
+  },
+  "routeError": {
+    "title": "This page did not load",
+    "description": "Something went wrong while opening it. Try again; your data is safe.",
+    "retry": "Try again"
+  }
+}
