@@ -104,6 +104,7 @@ export class WorkspacesService {
       role: ws.role,
       // Recomputed so a settings change shows up in the same response.
       permissions: permissionsFor(ws.role, tenant),
+      availability: ws.availability,
     };
   }
 }

@@ -120,5 +120,46 @@
     "title": "This page did not load",
     "description": "Something went wrong while opening it. Try again; your data is safe.",
     "retry": "Try again"
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "manager": "Manager",
+    "agent": "Agent",
+    "viewer": "Viewer"
+  },
+  "availability": {
+    "online": "Online",
+    "away": "Away",
+    "offline": "Offline"
+  },
+  "shell": {
+    "workspace": "Workspace",
+    "noWorkspace": "No workspace",
+    "createWorkspace": "Create workspace",
+    "createWorkspaceLead": "You will be its Owner. You can invite your team next.",
+    "workspaceLimit": "You own the maximum of {{max}} workspaces.",
+    "createFirstTitle": "Create your workspace",
+    "createFirstLead": "A workspace holds one business: its channels, conversations and team.",
+    "mainNav": "Main",
+    "channels": "Channels",
+    "noChannels": "No channels yet.",
+    "connectChannel": "Connect one",
+    "topBar": "Top bar",
+    "notifications": "Notifications",
+    "noNotifications": "No notifications yet",
+    "noNotificationsLead": "New assignments and channel alerts will show up here.",
+    "availability": "Availability",
+    "profile": "Profile",
+    "signOut": "Sign out",
+    "profileMenu": "Account menu for {{name}}, {{status}}",
+    "loadFailed": "We could not load your workspaces",
+    "loadFailedLead": "Check your connection and try again.",
+    "unverified": {
+      "title": "Confirm your email to connect channels",
+      "description": "We sent you a link when you signed up.",
+      "resend": "Send a new link",
+      "sent": "A new link is on its way to {{email}}."
+    }
   }
 }

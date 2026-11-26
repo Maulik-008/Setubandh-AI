@@ -8,6 +8,7 @@ import {
   findFormError,
   findVisibleText,
   mockSession,
+  mockWorkspaces,
   renderApp,
   sessionBody,
 } from '../../test/render';
@@ -19,6 +20,7 @@ const fill = async (label: RegExp, value: string) => {
 describe('auth screens (real Chromium, MSW-mocked API)', () => {
   it('sends a signed-out visitor to /login with next, then back after signing in', async () => {
     mockSession(false);
+    mockWorkspaces(); // lands in the app shell
     let body: unknown;
     worker.use(
       http.post('/v1/auth/login', async ({ request }) => {
@@ -76,6 +78,7 @@ describe('auth screens (real Chromium, MSW-mocked API)', () => {
 
   it('asks for the 2FA code, then signs in; a recovery code is offered', async () => {
     mockSession(false);
+    mockWorkspaces(); // lands in the app shell
     let secondStep: unknown;
     worker.use(
       http.post('/v1/auth/login', () =>
@@ -186,6 +189,7 @@ describe('auth screens (real Chromium, MSW-mocked API)', () => {
 
   it('creates an account from an invitation and lands signed in', async () => {
     mockSession(false);
+    mockWorkspaces(); // lands in the app shell
     worker.use(
       http.post('/v1/auth/accept-invite', () =>
         HttpResponse.json(sessionBody({ email: 'new@example.com' })),

@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { AppError, type AssignableRole, type MemberListResponse } from '@setubandh/shared';
+import {
+  AppError,
+  type AssignableRole,
+  type AvailabilityStatus,
+  type MemberListResponse,
+} from '@setubandh/shared';
 import { AuditService } from '../audit';
 import type { RequestMeta } from '../auth';
 import type { WorkspaceContext } from './tenant.guard';
@@ -19,6 +24,11 @@ export class MembersService {
   async list(ws: WorkspaceContext): Promise<MemberListResponse> {
     const rows = await this.repo.listMembers(ws.tenantId);
     return { members: rows.map((m) => ({ ...m, joinedAt: m.joinedAt.toISOString() })) };
+  }
+
+  /** My own availability in this workspace (Online / Away / Offline). Not audited: not a change of access. */
+  async setMyAvailability(ws: WorkspaceContext, availability: AvailabilityStatus): Promise<void> {
+    await this.repo.setAvailability(ws.membershipId, availability);
   }
 
   async changeRole(

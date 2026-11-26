@@ -1,5 +1,5 @@
 import { passwordSchema } from './auth';
-import { MEMBERSHIP_ROLES } from './enums';
+import { AVAILABILITY_STATUSES, MEMBERSHIP_ROLES } from './enums';
 import { PERMISSIONS } from './permissions';
 import { z } from './zod';
 
@@ -51,8 +51,15 @@ export const workspaceResponseSchema = z
     agentsSeeAllConversations: z.boolean(),
     role,
     permissions: z.array(z.enum(PERMISSIONS)),
+    /** My availability in this workspace (shown in the profile menu). */
+    availability: z.enum(AVAILABILITY_STATUSES),
   })
   .openapi('Workspace');
+
+export const updateAvailabilityRequestSchema = z
+  .object({ availability: z.enum(AVAILABILITY_STATUSES) })
+  .strict()
+  .openapi('UpdateAvailabilityRequest');
 
 export const updateWorkspaceRequestSchema = z
   .object({ name, timezone, agentsSeeAllConversations: z.boolean() })
@@ -132,6 +139,7 @@ export type WorkspaceListResponse = z.infer<typeof workspaceListResponseSchema>;
 export type CreateWorkspaceRequest = z.infer<typeof createWorkspaceRequestSchema>;
 export type WorkspaceResponse = z.infer<typeof workspaceResponseSchema>;
 export type UpdateWorkspaceRequest = z.infer<typeof updateWorkspaceRequestSchema>;
+export type UpdateAvailabilityRequest = z.infer<typeof updateAvailabilityRequestSchema>;
 export type LastWorkspaceRequest = z.infer<typeof lastWorkspaceRequestSchema>;
 export type Member = z.infer<typeof memberSchema>;
 export type MemberListResponse = z.infer<typeof memberListResponseSchema>;

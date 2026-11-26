@@ -13,7 +13,7 @@ import {
   type Database,
   type InvitationRole,
 } from '@setubandh/db';
-import { AppError, type MembershipRole } from '@setubandh/shared';
+import { AppError, type AvailabilityStatus, type MembershipRole } from '@setubandh/shared';
 import { DATABASE } from '../../core/database';
 
 type TenantInsert = typeof tenants.$inferInsert;
@@ -32,6 +32,7 @@ export class TenancyRepository {
       .select({
         id: memberships.id,
         role: memberships.role,
+        availability: memberships.availability,
         agentsSeeAllConversations: tenants.agentsSeeAllConversations,
       })
       .from(memberships)
@@ -137,6 +138,13 @@ export class TenancyRepository {
     await this.db.platform
       .update(memberships)
       .set({ role, updatedAt: new Date() })
+      .where(eq(memberships.id, memberId));
+  }
+
+  async setAvailability(memberId: string, availability: AvailabilityStatus): Promise<void> {
+    await this.db.platform
+      .update(memberships)
+      .set({ availability, updatedAt: new Date() })
       .where(eq(memberships.id, memberId));
   }
 

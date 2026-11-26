@@ -5,6 +5,7 @@ import { RedirectIfSignedIn, RequireAuth } from '../auth/guards';
 import { AuthLayout } from '../pages/auth/AuthLayout';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RouteError } from '../pages/RouteError';
+import { AppLayout } from '../shell/AppLayout';
 
 /** Astryx links and link-buttons navigate through React Router (no full page loads). */
 const AppLink = forwardRef<HTMLAnchorElement, ComponentProps<'a'> & { to?: string }>(
@@ -65,8 +66,13 @@ export const routes: RouteObject[] = [
       {
         element: <RequireAuth />,
         children: [
-          { index: true, ...page(() => import('../pages/app/HomePage'), 'HomePage') },
-          { path: 'inbox', ...page(() => import('../pages/app/InboxPage'), 'InboxPage') },
+          {
+            element: <AppLayout />,
+            children: [
+              { index: true, ...page(() => import('../pages/app/HomePage'), 'HomePage') },
+              { path: 'inbox', ...page(() => import('../pages/app/InboxPage'), 'InboxPage') },
+            ],
+          },
         ],
       },
       ...(import.meta.env.DEV || import.meta.env.MODE === 'e2e'

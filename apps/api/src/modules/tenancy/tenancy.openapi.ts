@@ -11,6 +11,7 @@ import {
   memberListResponseSchema,
   sessionResponseSchema,
   transferOwnershipRequestSchema,
+  updateAvailabilityRequestSchema,
   updateMemberRequestSchema,
   updateWorkspaceRequestSchema,
   workspaceListResponseSchema,
@@ -83,6 +84,14 @@ registerRoute({
   summary: 'Members of the current workspace',
   request: { headers: workspaceHeader },
   responses: { 200: { description: 'Members', ...json(memberListResponseSchema) } },
+});
+registerRoute({
+  method: 'patch',
+  path: '/v1/members/me',
+  tags: ['members'],
+  summary: 'Set my availability in the current workspace',
+  request: { headers: workspaceHeader, ...body(updateAvailabilityRequestSchema) },
+  responses: { 200: { description: 'Saved', ...json(updateAvailabilityRequestSchema) } },
 });
 registerRoute({
   method: 'patch',

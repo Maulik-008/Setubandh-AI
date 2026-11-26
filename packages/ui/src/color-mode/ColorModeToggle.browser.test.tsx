@@ -64,4 +64,19 @@ describe('<ColorModeToggle> in <AppTheme> (real Chromium)', () => {
       computed(paperPastelTokens[os].foreground),
     );
   });
+
+  it('compact mode hides the words but keeps every option named for screen readers', async () => {
+    render(
+      <AppTheme>
+        <ColorModeToggle isCompact />
+      </AppTheme>,
+    );
+    for (const name of ['Light', 'Dark', 'System']) {
+      const radio = screen.getByRole('radio', { name });
+      expect(radio).toBeInTheDocument();
+    }
+    expect(screen.queryByText('Light')?.checkVisibility()).not.toBe(true);
+    await userEvent.click(screen.getByRole('radio', { name: 'Dark' }));
+    expect(screen.getByRole('radio', { name: 'Dark' })).toBeChecked();
+  });
 });

@@ -419,4 +419,18 @@ describe('workspaces, members, invitations and roles', () => {
     );
     expect(moved).toEqual([]);
   });
+
+  it('lets any member set their own availability, shown in GET /v1/workspace', async () => {
+    const res = await call('PATCH', '/v1/members/me', agent, { availability: 'online' });
+    expect(res.statusCode).toBe(200);
+    expect(
+      (await call('GET', '/v1/workspace', agent)).json<{ availability: string }>().availability,
+    ).toBe('online');
+    expect(
+      (await call('GET', '/v1/workspace', owner)).json<{ availability: string }>().availability,
+    ).toBe('offline');
+    expect(
+      (await call('PATCH', '/v1/members/me', agent, { availability: 'busy' })).statusCode,
+    ).toBe(422);
+  });
 });

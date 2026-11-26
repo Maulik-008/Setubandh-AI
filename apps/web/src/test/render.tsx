@@ -59,12 +59,15 @@ export function renderApp(path: string) {
 export async function findVisibleText(text: string | RegExp): Promise<HTMLElement> {
   const { screen, waitFor } = await import('@testing-library/react');
   let found: HTMLElement | undefined;
-  await waitFor(() => {
-    found = screen
-      .getAllByText(text)
-      .find((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true }));
-    if (!found) throw new Error(`No visible element with text ${String(text)}`);
-  });
+  await waitFor(
+    () => {
+      found = screen
+        .getAllByText(text)
+        .find((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true }));
+      if (!found) throw new Error(`No visible element with text ${String(text)}`);
+    },
+    { timeout: 5000 },
+  );
   return found!;
 }
 
@@ -74,4 +77,97 @@ export async function findFormError(text: string | RegExp): Promise<HTMLElement>
   const alert = el.closest('[data-form-error]');
   if (!alert) throw new Error(`"${String(text)}" is not inside the form error`);
   return alert as HTMLElement;
+}
+
+export const WS_A = '01900000-0000-7000-8000-0000000000a1';
+export const WS_B = '01900000-0000-7000-8000-0000000000b2';
+
+export const OWNER_PERMISSIONS = [
+  'inbox.view_all',
+  'inbox.view_unassigned',
+  'inbox.reply',
+  'inbox.resolve',
+  'inbox.assign_self',
+  'inbox.assign_any',
+  'contacts.edit',
+  'saved_replies.manage_own',
+  'saved_replies.manage_shared',
+  'channels.manage',
+  'members.manage',
+  'workspace.settings',
+  'workspace.transfer_ownership',
+] as const;
+export const AGENT_PERMISSIONS = [
+  'inbox.view_unassigned',
+  'inbox.reply',
+  'inbox.resolve',
+  'inbox.assign_self',
+  'contacts.edit',
+  'saved_replies.manage_own',
+] as const;
+
+export interface WorkspaceMockLog {
+  /** X-Workspace-Id of every GET /v1/workspace. */
+  workspaceHeaders: (string | null)[];
+  lastWorkspacePuts: unknown[];
+}
+
+/** Two workspaces: Owner of "Kesari Threads" (A, last used), Agent of "Second Shop" (B). */
+export function mockWorkspaces(
+  options: { roleInA?: 'owner' | 'admin' | 'agent' } = {},
+): WorkspaceMockLog {
+  const log: WorkspaceMockLog = { workspaceHeaders: [], lastWorkspacePuts: [] };
+  const roleA = options.roleInA ?? 'owner';
+  worker.use(
+    http.get('/v1/workspaces', () =>
+      HttpResponse.json({
+        workspaces: [
+          { id: WS_A, name: 'Kesari Threads', role: roleA },
+          { id: WS_B, name: 'Second Shop', role: 'agent' },
+        ],
+        lastWorkspaceId: WS_A,
+      }),
+    ),
+    http.put('/v1/me/last-workspace', async ({ request }) => {
+      log.lastWorkspacePuts.push(await request.json());
+      return new HttpResponse(null, { status: 204 });
+    }),
+    http.get('/v1/workspace', ({ request }) => {
+      const ws = request.headers.get('x-workspace-id');
+      log.workspaceHeaders.push(ws);
+      const isA = ws === WS_A;
+      const role = isA ? roleA : 'agent';
+      return HttpResponse.json({
+        id: ws,
+        name: isA ? 'Kesari Threads' : 'Second Shop',
+        timezone: 'Asia/Kolkata',
+        country: 'IN',
+        currency: 'INR',
+        agentsSeeAllConversations: false,
+        role,
+        permissions: role === 'agent' ? AGENT_PERMISSIONS : OWNER_PERMISSIONS,
+        availability: 'offline',
+      });
+    }),
+  );
+  return log;
+}
+
+/**
+ * The visible element with this role and name. AppShell keeps a hidden copy of the side nav for
+ * the mobile drawer, and Astryx announcers copy messages, so "the first match" can be hidden.
+ */
+export async function findVisibleByRole(role: string, name: string | RegExp): Promise<HTMLElement> {
+  const { screen, waitFor } = await import('@testing-library/react');
+  let found: HTMLElement | undefined;
+  await waitFor(
+    () => {
+      found = screen
+        .getAllByRole(role, { name })
+        .find((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true }));
+      if (!found) throw new Error(`No visible ${role} named ${String(name)}`);
+    },
+    { timeout: 5000 },
+  );
+  return found!;
 }

@@ -14,8 +14,17 @@ function isColorMode(value: string): value is ColorMode {
   return (COLOR_MODES as readonly string[]).includes(value);
 }
 
-/** Light / dark / system switch (a radio group). Drives Astryx `<Theme mode>` through `<AppTheme>`. */
-export function ColorModeToggle({ size = 'sm' }: { size?: 'sm' | 'md' }) {
+/**
+ * Light / dark / system switch (a radio group). Drives Astryx `<Theme mode>` through `<AppTheme>`.
+ * `isCompact` shows icons only (tight top bars); each option keeps its accessible name.
+ */
+export function ColorModeToggle({
+  size = 'sm',
+  isCompact = false,
+}: {
+  size?: 'sm' | 'md';
+  isCompact?: boolean;
+}) {
   const { mode, setMode } = useColorMode();
   return (
     <SegmentedControl
@@ -33,6 +42,7 @@ export function ColorModeToggle({ size = 'sm' }: { size?: 'sm' | 'md' }) {
             key={value}
             value={value}
             label={label}
+            isLabelHidden={isCompact}
             icon={<LineIcon icon={Icon} />}
           />
         );

@@ -1,10 +1,12 @@
 import { Controller, Delete, Get, HttpCode, Patch, Post, Req } from '@nestjs/common';
 import {
   transferOwnershipRequestSchema,
+  updateAvailabilityRequestSchema,
   updateMemberRequestSchema,
   z,
   type MemberListResponse,
   type TransferOwnershipRequest,
+  type UpdateAvailabilityRequest,
   type UpdateMemberRequest,
 } from '@setubandh/shared';
 import type { FastifyRequest } from 'fastify';
@@ -25,6 +27,17 @@ export class MembersController {
   @RequirePermission()
   list(@CurrentWorkspace() ws: WorkspaceContext): Promise<MemberListResponse> {
     return this.members.list(ws);
+  }
+
+  @Patch('me')
+  @HttpCode(200)
+  @RequirePermission()
+  async setMyAvailability(
+    @CurrentWorkspace() ws: WorkspaceContext,
+    @ZodBody(updateAvailabilityRequestSchema) body: UpdateAvailabilityRequest,
+  ): Promise<UpdateAvailabilityRequest> {
+    await this.members.setMyAvailability(ws, body.availability);
+    return { availability: body.availability };
   }
 
   @Patch(':id')

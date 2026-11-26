@@ -10,6 +10,7 @@ import {
   permissionsFor,
   WORKSPACE_ID_HEADER,
   z,
+  type AvailabilityStatus,
   type MembershipRole,
   type Permission,
 } from '@setubandh/shared';
@@ -24,6 +25,7 @@ export interface WorkspaceContext {
   membershipId: string;
   role: MembershipRole;
   permissions: Permission[];
+  availability: AvailabilityStatus;
 }
 
 type TenantRequest = FastifyRequest & {
@@ -78,6 +80,7 @@ export class TenantGuard implements CanActivate {
       membershipId: membership.id,
       role: membership.role,
       permissions,
+      availability: membership.availability,
     };
     return true;
   }
