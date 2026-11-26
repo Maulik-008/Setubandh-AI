@@ -8,16 +8,13 @@ import {
   invitations,
   isNull,
   memberships,
-  securityEvents,
   tenants,
   users,
   type Database,
   type InvitationRole,
-  type SecurityEventType,
 } from '@setubandh/db';
 import { AppError, type MembershipRole } from '@setubandh/shared';
 import { DATABASE } from '../../core/database';
-import type { RequestMeta } from '../auth';
 
 type TenantInsert = typeof tenants.$inferInsert;
 
@@ -287,18 +284,5 @@ export class TenancyRepository {
         .onConflictDoNothing();
       return { invite, user: user! };
     });
-  }
-
-  // --- security events (until the M1-12 audit log) ---------------------------------------------
-
-  async recordSecurityEvent(
-    type: SecurityEventType,
-    userId: string,
-    meta: RequestMeta,
-    metadata: Record<string, unknown>,
-  ): Promise<void> {
-    await this.db.platform
-      .insert(securityEvents)
-      .values({ type, userId, ip: meta.ip, userAgent: meta.userAgent?.slice(0, 500), metadata });
   }
 }

@@ -10,14 +10,18 @@ import {
   type WorkspaceResponse,
   type WorkspaceSummary,
 } from '@setubandh/shared';
-import { workspaceDefaults, workspaceSlug } from '../auth';
+import { AuditService } from '../audit';
+import { workspaceDefaults, workspaceSlug, type RequestMeta } from '../auth';
 import type { WorkspaceContext } from './tenant.guard';
 import { TenancyRepository } from './tenancy.repository';
 
 /** Workspaces and the switcher (requirements §5.2, FR-AUTH-07). */
 @Injectable()
 export class WorkspacesService {
-  constructor(private readonly repo: TenancyRepository) {}
+  constructor(
+    private readonly repo: TenancyRepository,
+    private readonly audit: AuditService,
+  ) {}
 
   async listMine(userId: string): Promise<WorkspaceListResponse> {
     const [workspaces, user] = await Promise.all([
@@ -51,9 +55,31 @@ export class WorkspacesService {
     return this.toResponse(tenant, ws);
   }
 
-  async update(ws: WorkspaceContext, changes: UpdateWorkspaceRequest): Promise<WorkspaceResponse> {
+  async update(
+    ws: WorkspaceContext,
+    actorId: string,
+    changes: UpdateWorkspaceRequest,
+    meta: RequestMeta,
+  ): Promise<WorkspaceResponse> {
+    const before = await this.repo.findTenant(ws.tenantId);
     const tenant = await this.repo.updateTenant(ws.tenantId, changes);
-    if (!tenant) throw new AppError('NOT_FOUND');
+    if (!before || !tenant) throw new AppError('NOT_FOUND');
+    // Only changed fields, old and new values (none of them is secret).
+    const changed = Object.fromEntries(
+      (Object.keys(changes) as (keyof UpdateWorkspaceRequest)[])
+        .filter((key) => before[key] !== tenant[key])
+        .map((key) => [key, { from: before[key], to: tenant[key] }]),
+    );
+    if (Object.keys(changed).length > 0) {
+      await this.audit.record({
+        tenantId: ws.tenantId,
+        actor: { type: 'user', id: actorId },
+        action: 'workspace.settings_changed',
+        target: { type: 'workspace', id: ws.tenantId },
+        metadata: { changed },
+        ip: meta.ip,
+      });
+    }
     return this.toResponse(tenant, ws);
   }
 

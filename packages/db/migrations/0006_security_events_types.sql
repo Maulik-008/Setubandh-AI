@@ -1,0 +1,2 @@
+ALTER TABLE "security_events" DROP CONSTRAINT "security_events_type_check";--> statement-breakpoint
+ALTER TABLE "security_events" ADD CONSTRAINT "security_events_type_check" CHECK (type IN ('signup', 'login_succeeded', 'login_failed', 'login_locked', 'refresh_token_reuse', 'logout', 'email_verified', 'password_reset_requested', 'password_reset', 'two_factor_enabled', 'two_factor_disabled', 'recovery_code_used'));

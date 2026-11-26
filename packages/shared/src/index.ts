@@ -12,3 +12,4 @@ export * from './enums';
 export * from './auth';
 export * from './permissions';
 export * from './workspaces';
+export * from './audit';

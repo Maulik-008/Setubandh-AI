@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppError, type AssignableRole, type MemberListResponse } from '@setubandh/shared';
+import { AuditService } from '../audit';
 import type { RequestMeta } from '../auth';
 import type { WorkspaceContext } from './tenant.guard';
 import { TenancyRepository } from './tenancy.repository';
@@ -10,7 +11,10 @@ import { TenancyRepository } from './tenancy.repository';
  */
 @Injectable()
 export class MembersService {
-  constructor(private readonly repo: TenancyRepository) {}
+  constructor(
+    private readonly repo: TenancyRepository,
+    private readonly audit: AuditService,
+  ) {}
 
   async list(ws: WorkspaceContext): Promise<MemberListResponse> {
     const rows = await this.repo.listMembers(ws.tenantId);
@@ -27,11 +31,13 @@ export class MembersService {
     const target = await this.ownerSafeTarget(ws, memberId, 'change the role of');
     if (target.role === role) return;
     await this.repo.updateMemberRole(target.id, role);
-    await this.repo.recordSecurityEvent('member_role_changed', actorId, meta, {
+    await this.audit.record({
       tenantId: ws.tenantId,
-      memberId: target.id,
-      from: target.role,
-      to: role,
+      actor: { type: 'user', id: actorId },
+      action: 'member.role_changed',
+      target: { type: 'member', id: target.id },
+      metadata: { userId: target.userId, from: target.role, to: role },
+      ip: meta.ip,
     });
   }
 
@@ -43,10 +49,13 @@ export class MembersService {
   ): Promise<void> {
     const target = await this.ownerSafeTarget(ws, memberId, 'remove');
     await this.repo.deleteMember(target.id);
-    await this.repo.recordSecurityEvent('member_removed', actorId, meta, {
+    await this.audit.record({
       tenantId: ws.tenantId,
-      memberId: target.id,
-      userId: target.userId,
+      actor: { type: 'user', id: actorId },
+      action: 'member.removed',
+      target: { type: 'member', id: target.id },
+      metadata: { userId: target.userId, role: target.role },
+      ip: meta.ip,
     });
   }
 
@@ -62,10 +71,13 @@ export class MembersService {
       throw new AppError('CONFLICT', { message: 'You already own this workspace.' });
     }
     await this.repo.transferOwnership(ws.membershipId, target.id);
-    await this.repo.recordSecurityEvent('ownership_transferred', actorId, meta, {
+    await this.audit.record({
       tenantId: ws.tenantId,
-      fromMemberId: ws.membershipId,
-      toMemberId: target.id,
+      actor: { type: 'user', id: actorId },
+      action: 'workspace.ownership_transferred',
+      target: { type: 'member', id: target.id },
+      metadata: { fromMemberId: ws.membershipId, toUserId: target.userId },
+      ip: meta.ip,
     });
   }
 

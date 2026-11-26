@@ -382,4 +382,41 @@ describe('workspaces, members, invitations and roles', () => {
       ).statusCode,
     ).toBe(200);
   });
+
+  // --- Audit log (M1-12) ----------------------------------------------------------------------
+  it('records member and settings changes in the tenant audit log, with actor and target', async () => {
+    const agentMember = await memberIdOf(agent);
+    await call('PATCH', `/v1/members/${agentMember}`, owner, { role: 'admin' });
+    await call('PATCH', `/v1/members/${agentMember}`, owner, { role: 'agent' });
+    const rows = await adminQuery<{
+      action: string;
+      actor_id: string;
+      target_type: string;
+      metadata: Record<string, unknown>;
+    }>(
+      t.db.adminUrl,
+      `SELECT action, actor_id, target_type, metadata FROM audit_logs WHERE tenant_id = $1::uuid ORDER BY created_at`,
+      [workspaceId],
+    );
+    const actions = new Set(rows.map((r) => r.action));
+    for (const action of [
+      'member.invited',
+      'invitation.accepted',
+      'member.role_changed',
+      'member.removed',
+      'invitation.revoked',
+      'workspace.settings_changed',
+    ]) {
+      expect(actions, action).toContain(action);
+    }
+    expect(rows.every((r) => r.actor_id && r.target_type)).toBe(true);
+    const roleChange = rows.find((r) => r.action === 'member.role_changed');
+    expect(roleChange?.metadata).toMatchObject({ from: 'agent', to: 'admin' });
+    // Member events no longer go to the account-level security log.
+    const moved = await adminQuery(
+      t.db.adminUrl,
+      `SELECT 1 FROM security_events WHERE type LIKE 'member%'`,
+    );
+    expect(moved).toEqual([]);
+  });
 });

@@ -1,7 +1,7 @@
 # M1-12: Tenant isolation suite and audit log
 
 Ticket: M1-12
-Status: ready-for-agent (plan approved 2026-11-26)
+Status: ready-for-human (implemented 2026-11-26; awaiting your review)
 Plan: [docs/plan/01-mvp-1-unified-inbox.md §9, week 2](../../plan/01-mvp-1-unified-inbox.md)
 Requirements: §5.2 (automated isolation proof, P1-04), FR-AUD-01..03 and P1-05 (audit log, append-only), §11.2 (`audit_logs`, `platform_audit_logs`, monthly partitions), §14.6 (logs).
 
@@ -69,3 +69,17 @@ Also covered:
 - Audit log screen and CSV export (P1 / M3).
 - Platform admins and impersonation (M1-30).
 - Retention: dropping partitions after 2 years comes with backups and ops (M1-34).
+
+## Implementation notes (2026-11-26)
+
+- **Acceptance tests:**
+  - `packages/db/test/audit.int.test.ts` (append-only, RLS, partitions, the maintenance function);
+  - `packages/db/test/tenant-isolation.int.test.ts` (catalog check of every tenant table, cross-tenant reads, "the guard fails when a new tenant table lacks RLS");
+  - `apps/api/test/isolation.int.test.ts` (every workspace route).
+- **Where the table checks live:** they are in the database package's suite rather than the API suite, next to the RLS tests they extend. The API suite covers the endpoints.
+- **Mutation-checked:** dropping the tenant condition from one repository query makes the API suite fail (`PATCH /v1/members/:id` answered 204 across tenants).
+- **Readable endpoints:** the suite also checks that no list endpoint called in workspace B returns any identifier of workspace A (ids, emails).
+- **Partition job:** the worker now has a database connection. `platform.audit-partitions` runs at boot (job id `platform.audit-partitions.boot`) and on a BullMQ job scheduler. Concurrent runs are serialised by an advisory lock.
+- **Security event types:** the four M1-11 member event types are removed from the `security_events` CHECK (migration 0006); those events now go to `audit_logs`.
+- **Lint rule:** `platformScopeConfig` in `packages/config/eslint`, with a fixture test. The worker's `platform` module is also allowed, because maintenance jobs are platform scope.
+- **Out of this ticket, fixed on the way:** the CI web and admin images failed on `pnpm install --offline` (the supply-chain check needs registry metadata). This was fixed in a separate commit.

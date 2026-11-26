@@ -21,9 +21,17 @@ A tenant table queried outside `withTenant` returns **no rows**; writing another
 1. Add the table to `src/schema/` with `tenant_id uuid not null references tenants(id)` and an index that starts with `tenant_id`.
 2. `pnpm --filter @setubandh/db db:generate` creates the SQL migration.
 3. `pnpm --filter @setubandh/db exec drizzle-kit generate --custom --name=<table>_rls` and paste the output of `tenantIsolationSql('<table>')` (enable + FORCE RLS, one policy with USING and WITH CHECK).
-4. Add the table to the tenant isolation tests. The guard test in `test/tenant-isolation.int.test.ts` already fails if any table with `tenant_id` lacks forced RLS or a policy.
+4. Add a seed row for the table to `SEED_ROW` in `test/tenant-isolation.int.test.ts`. The isolation suite finds every table with `tenant_id` by itself and fails, naming the table, when RLS, FORCE, the policy, the `tenant_id` index or the seed row is missing.
+5. If the ticket adds workspace endpoints with path ids, add them to `CROSS_TENANT_FIXTURES` in `apps/api/test/isolation.int.test.ts` (the suite asks for it by name).
 
-Run `/rls-check` before opening the PR.
+Run `/rls-check` before opening the PR. Only the platform-scope modules (`auth`, `users`, `tenancy`, `audit`, worker `platform`, later `platform-admin` and `billing`) may use `db.platform`; anywhere else it is a lint error.
+
+## Audit logs (M1-12)
+
+- `audit_logs` (tenant, RLS) and `platform_audit_logs` (platform) come from the hand-written migration `0005_audit_logs.sql`: drizzle-kit cannot express partitioned tables, so `src/schema/audit.ts` only describes them for queries and is left out of `drizzle.config.ts`.
+- **Append-only:** `orbit_app` has `SELECT, INSERT` only; `UPDATE`, `DELETE` and `TRUNCATE` are refused (also on `security_events`).
+- **Monthly partitions** on `created_at`, plus a `DEFAULT` partition. Partitions have no grants for `orbit_app` and are reachable only through the parent. `app_ensure_audit_partitions(months_ahead)` creates missing months; the worker runs it at boot and daily at 02:17 UTC (`platform.audit-partitions`), keeping 3 months ahead.
+- Write them through `AuditService` / `PlatformAuditService` (`apps/api/src/modules/audit`), never directly. Action names live in `packages/shared/src/audit.ts`.
 
 ## Commands
 

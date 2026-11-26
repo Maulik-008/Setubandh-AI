@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { AuditModule } from '../audit';
 import { AuthModule } from '../auth';
 import { AcceptInviteController, InvitationsController } from './invitations.controller';
 import { InvitationsService } from './invitations.service';
@@ -20,7 +21,7 @@ import './tenancy.openapi';
  * runs after AuthGuard and needs the signed-in user.
  */
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, AuditModule],
   controllers: [
     WorkspacesController,
     CurrentWorkspaceController,

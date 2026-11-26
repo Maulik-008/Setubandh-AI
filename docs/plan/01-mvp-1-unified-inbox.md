@@ -519,8 +519,8 @@ Week 1 starts Monday 23 November 2026. One developer working full time with Clau
 **Spec:** [docs/specs/m1-12-isolation-suite-and-audit/spec.md](../specs/m1-12-isolation-suite-and-audit/spec.md)
 **Build:** isolation suite (two seeded tenants, every repository and endpoint asserted); lint rule against raw pool use; tenant and platform audit services with append-only grants.
 **Acceptance:**
-- [ ] Suite runs in CI on every merge and fails if a new tenant table lacks RLS.
-- [ ] Update / delete on audit tables is denied for `orbit_app`.
+- [x] Suite runs in CI on every merge and fails if a new tenant table lacks RLS.
+- [x] Update / delete on audit tables is denied for `orbit_app`.
 
 #### M1-13 App shell, auth screens, settings shell
 **Spec:** [docs/specs/m1-13-app-shell-auth-settings/spec.md](../specs/m1-13-app-shell-auth-settings/spec.md)

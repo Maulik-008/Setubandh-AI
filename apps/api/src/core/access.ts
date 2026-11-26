@@ -1,4 +1,5 @@
-import { SetMetadata, type INestApplication } from '@nestjs/common';
+import { RequestMethod, SetMetadata, type INestApplication } from '@nestjs/common';
+import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import { ModulesContainer, Reflector } from '@nestjs/core';
 import type { Permission } from '@setubandh/shared';
 
@@ -21,12 +22,30 @@ export const RequirePermission = (...permissions: Permission[]) =>
 
 export type RouteAccess = 'public' | 'user' | 'workspace' | 'undeclared';
 
-/** Every HTTP route of the app with how it declares access (used by the rule 3 guard test). */
-export function describeRouteAccess(
-  app: INestApplication,
-): { controller: string; handler: string; access: RouteAccess }[] {
+export interface RouteInfo {
+  controller: string;
+  handler: string;
+  /** HTTP method, upper case (GET, POST, ...). */
+  method: string;
+  /** Full path with the `/v1` prefix and `:params`, e.g. `/v1/members/:id`. */
+  path: string;
+  access: RouteAccess;
+}
+
+const join = (...parts: (string | undefined)[]) =>
+  '/' +
+  parts
+    .flatMap((p) => (p ?? '').split('/'))
+    .filter(Boolean)
+    .join('/');
+
+/**
+ * Every HTTP route of the app with how it declares access. Used by the rule 3 guard test and the
+ * tenant isolation suite, so new routes are covered without anyone listing them.
+ */
+export function describeRouteAccess(app: INestApplication, prefix = 'v1'): RouteInfo[] {
   const reflector = new Reflector();
-  const routes: { controller: string; handler: string; access: RouteAccess }[] = [];
+  const routes: RouteInfo[] = [];
   for (const module of app.get(ModulesContainer).values()) {
     for (const wrapper of module.controllers.values()) {
       const type = wrapper.metatype as (new (...args: never[]) => unknown) | undefined;
@@ -35,7 +54,7 @@ export function describeRouteAccess(
       for (const name of Object.getOwnPropertyNames(proto)) {
         const handler = proto[name];
         if (name === 'constructor' || typeof handler !== 'function') continue;
-        if (Reflect.getMetadata('method', handler) === undefined) continue; // not a route
+        if (Reflect.getMetadata(METHOD_METADATA, handler) === undefined) continue; // not a route
         const targets = [handler, type];
         const access: RouteAccess = reflector.getAllAndOverride<boolean>(IS_PUBLIC, targets)
           ? 'public'
@@ -44,7 +63,13 @@ export function describeRouteAccess(
             : reflector.getAllAndOverride<Permission[]>(REQUIRED_PERMISSIONS, targets)
               ? 'workspace'
               : 'undeclared';
-        routes.push({ controller: type.name, handler: name, access });
+        const method =
+          RequestMethod[Reflect.getMetadata(METHOD_METADATA, handler) as number] ?? 'UNKNOWN';
+        const base = Reflect.getMetadata(PATH_METADATA, type) as string | undefined;
+        const sub = Reflect.getMetadata(PATH_METADATA, handler) as string | undefined;
+        // Health stays outside the version prefix (M1-03).
+        const path = base === 'health' ? join(base, sub) : join(prefix, base, sub);
+        routes.push({ controller: type.name, handler: name, method, path, access });
       }
     }
   }

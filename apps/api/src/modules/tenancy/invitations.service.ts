@@ -11,6 +11,7 @@ import {
 import { CLOCK, type Clock } from '../../core/clock';
 import { ENV, type AppEnv } from '../../core/env';
 import { MailerService } from '../../core/mailer';
+import { AuditService } from '../audit';
 import { AuthService, hashPassword, type IssuedSession, type RequestMeta } from '../auth';
 import type { WorkspaceContext } from './tenant.guard';
 import { TenancyRepository } from './tenancy.repository';
@@ -35,6 +36,7 @@ export class InvitationsService {
     private readonly repo: TenancyRepository,
     private readonly auth: AuthService,
     private readonly mailer: MailerService,
+    private readonly audit: AuditService,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(ENV) private readonly env: AppEnv,
   ) {}
@@ -64,10 +66,13 @@ export class InvitationsService {
       invitedBy: inviterId,
     });
     await this.send(invite.email, ws.tenantId, inviterId, token);
-    await this.repo.recordSecurityEvent('member_invited', inviterId, meta, {
+    await this.audit.record({
       tenantId: ws.tenantId,
-      invitationId: invite.id,
-      role: input.role,
+      actor: { type: 'user', id: inviterId },
+      action: 'member.invited',
+      target: { type: 'invitation', id: invite.id },
+      metadata: { role: input.role },
+      ip: meta.ip,
     });
     return toDto(invite);
   }
@@ -81,14 +86,31 @@ export class InvitationsService {
     await this.send(invite.email, ws.tenantId, inviterId, token);
   }
 
-  async revoke(ws: WorkspaceContext, invitationId: string): Promise<void> {
+  async revoke(
+    ws: WorkspaceContext,
+    actorId: string,
+    invitationId: string,
+    meta: RequestMeta,
+  ): Promise<void> {
     const invite = await this.repo.findOpenInvitation(ws.tenantId, invitationId);
     if (!invite) throw new AppError('NOT_FOUND');
     await this.repo.revokeInvitation(invite.id);
+    await this.audit.record({
+      tenantId: ws.tenantId,
+      actor: { type: 'user', id: actorId },
+      action: 'invitation.revoked',
+      target: { type: 'invitation', id: invite.id },
+      metadata: { role: invite.role },
+      ip: meta.ip,
+    });
   }
 
   /** A signed-in user accepts; the invite must be for their email. */
-  async acceptAsUser(userId: string, token: string): Promise<AcceptedInvitationResponse> {
+  async acceptAsUser(
+    userId: string,
+    token: string,
+    meta: RequestMeta,
+  ): Promise<AcceptedInvitationResponse> {
     const now = this.clock.now();
     const [invite, user] = await Promise.all([
       this.repo.findUsableInvitation(hashToken(token), now),
@@ -103,6 +125,7 @@ export class InvitationsService {
       existingUserId: user.id,
     });
     if (!accepted) throw new AppError('INVITATION_INVALID');
+    await this.recordAccepted(invite, user.id, false, meta);
     return { workspaceId: invite.tenantId, role: invite.role };
   }
 
@@ -133,7 +156,24 @@ export class InvitationsService {
       },
     });
     if (!accepted) throw new AppError('INVITATION_INVALID');
+    await this.recordAccepted(invite, accepted.user.id, true, meta);
     return this.auth.startSession(accepted.user, meta);
+  }
+
+  private recordAccepted(
+    invite: { id: string; tenantId: string; role: string },
+    userId: string,
+    newAccount: boolean,
+    meta: RequestMeta,
+  ) {
+    return this.audit.record({
+      tenantId: invite.tenantId,
+      actor: { type: 'user', id: userId },
+      action: 'invitation.accepted',
+      target: { type: 'invitation', id: invite.id },
+      metadata: { role: invite.role, newAccount },
+      ip: meta.ip,
+    });
   }
 
   private expiry(): Date {

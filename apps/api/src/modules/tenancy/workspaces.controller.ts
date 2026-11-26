@@ -1,4 +1,5 @@
-import { Controller, Get, HttpCode, Patch, Post, Put } from '@nestjs/common';
+import { Controller, Get, HttpCode, Patch, Post, Put, Req } from '@nestjs/common';
+import type { FastifyRequest } from 'fastify';
 import {
   createWorkspaceRequestSchema,
   lastWorkspaceRequestSchema,
@@ -52,9 +53,14 @@ export class CurrentWorkspaceController {
   @RequirePermission('workspace.settings')
   update(
     @CurrentWorkspace() ws: WorkspaceContext,
+    @CurrentUser() user: AuthUser,
     @ZodBody(updateWorkspaceRequestSchema) body: UpdateWorkspaceRequest,
+    @Req() req: FastifyRequest,
   ): Promise<WorkspaceResponse> {
-    return this.workspaces.update(ws, body);
+    return this.workspaces.update(ws, user.id, body, {
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
   }
 }
 

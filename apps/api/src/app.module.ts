@@ -7,6 +7,7 @@ import { AppErrorFilter } from './core/error.filter';
 import { LoggingModule } from './core/logging';
 import { MailerModule } from './core/mailer';
 import { ValkeyModule } from './core/valkey';
+import { AuditModule } from './modules/audit';
 import { AuthModule } from './modules/auth';
 import { TenancyModule } from './modules/tenancy';
 import { UsersModule } from './modules/users';
@@ -22,6 +23,7 @@ import { HealthModule } from './modules/health';
     DatabaseModule,
     ValkeyModule,
     MailerModule,
+    AuditModule,
     AuthModule,
     TenancyModule,
     UsersModule,

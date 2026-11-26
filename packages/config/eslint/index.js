@@ -106,6 +106,42 @@ export function boundariesConfig(rootPath) {
  * Build the flat config for one workspace.
  * @param {{ tsconfigRootDir: string, react?: boolean, ignores?: string[] }} options
  */
+/**
+ * Modules that own platform-scope tables (requirements §11.2) and may use `db.platform`. Every
+ * other module reads and writes tenant data only through `db.withTenant()` (rule 1, M1-12).
+ */
+export const PLATFORM_SCOPE_MODULES = [
+  'auth',
+  'users',
+  'tenancy',
+  'audit',
+  'platform',
+  'platform-admin',
+  'billing',
+];
+
+/** `db.platform` / `this.db.platform` outside the platform-scope modules is a lint error. */
+export function platformScopeConfig(prefix = '') {
+  const message =
+    'Rule 1: tenant data goes through db.withTenant(). db.platform is only for the platform-scope modules (' +
+    PLATFORM_SCOPE_MODULES.join(', ') +
+    ').';
+  return {
+    files: [`${prefix}src/modules/**/*.ts`],
+    ignores: [`${prefix}src/modules/{${PLATFORM_SCOPE_MODULES.join(',')}}/**`],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        { selector: "MemberExpression[object.name='db'][property.name='platform']", message },
+        {
+          selector: "MemberExpression[object.property.name='db'][property.name='platform']",
+          message,
+        },
+      ],
+    },
+  };
+}
+
 export function createConfig({ tsconfigRootDir, react = false, ignores = [] }) {
   return tseslint.config(
     {
@@ -154,6 +190,7 @@ export function createConfig({ tsconfigRootDir, react = false, ignores = [] }) {
       },
     },
     boundariesConfig(repoRoot),
+    platformScopeConfig(),
     {
       // Test matchers (expect.any, JSON.parse of fixtures) are typed `any`; keep app code strict.
       files: ['**/*.test.ts', '**/*.test.tsx', '**/test/**/*.ts', '**/e2e/**/*.ts'],

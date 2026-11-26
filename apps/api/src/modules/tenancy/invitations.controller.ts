@@ -72,9 +72,11 @@ export class InvitationsController {
   @RequirePermission('members.manage')
   async revoke(
     @CurrentWorkspace() ws: WorkspaceContext,
+    @CurrentUser() user: AuthUser,
     @ZodParams(idParams) params: { id: string },
+    @Req() req: FastifyRequest,
   ): Promise<void> {
-    await this.invitations.revoke(ws, params.id);
+    await this.invitations.revoke(ws, user.id, params.id, meta(req));
   }
 
   /** A signed-in user accepts an invite sent to their email. */
@@ -84,8 +86,9 @@ export class InvitationsController {
   accept(
     @CurrentUser() user: AuthUser,
     @ZodBody(acceptInvitationRequestSchema) body: AcceptInvitationRequest,
+    @Req() req: FastifyRequest,
   ): Promise<AcceptedInvitationResponse> {
-    return this.invitations.acceptAsUser(user.id, body.token);
+    return this.invitations.acceptAsUser(user.id, body.token, meta(req));
   }
 }
 
